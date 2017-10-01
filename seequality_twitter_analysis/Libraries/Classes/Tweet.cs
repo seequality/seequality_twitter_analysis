@@ -26,6 +26,7 @@ namespace Libraries.Classes
         public int NumberOfReplies { get; set; }
         public int NumberOfRetweets { get; set; }
         public int NumberOFFavourites { get; set; }
+        public int NumberOfErrorsDuringParsing { get; set; }
 
     }
 }
