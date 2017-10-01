@@ -24,6 +24,9 @@ namespace Libraries
             List<string> allFilesPaths = new List<string>();
             List<FileContent> filesContent = new List<FileContent>();
             List<Tweet> allTweets = new List<Tweet>();
+            SqlConnection conn;
+
+            #region Read files and save into database
 
             #region Read files
 
@@ -55,9 +58,9 @@ namespace Libraries
 
             #endregion
 
-            #region Save file info statistics
+            #region Save file info and content into database
 
-            SqlConnection conn = new SqlConnection(sqlConnectionString);
+            conn = new SqlConnection(sqlConnectionString);
 
             try
             {
@@ -72,11 +75,6 @@ namespace Libraries
             {
                 foreach (var fileContent in filesContent)
                 {
-                    var filePath = fileContent.FilePath;
-                    var fileSize = fileContent.FileSize;
-                    var htmlDocument = fileContent.HTMLDocument;
-
-
                     SqlCommand cmd = new SqlCommand("[sp_InsertFileContent]", conn);
                     cmd.CommandType = CommandType.StoredProcedure;
 
@@ -99,6 +97,12 @@ namespace Libraries
             }
 
             #endregion
+
+            #endregion
+
+            #region Parse documents and save tweets into database
+
+            #region Parse documents 
 
             foreach (var fileContent in filesContent)
             {
@@ -317,6 +321,67 @@ namespace Libraries
 
                 logger.Info("Parsed " + fileContent.FilePath + ", number of tweets: " + iNumberOfTweets + ", number of errors during parsing: " + iTotalNumberOfErrorsDuringParsing);
             }
+
+            #endregion
+
+            #region Save tweets into database
+
+            conn = new SqlConnection(sqlConnectionString);
+
+            try
+            {
+                conn.Open();
+            }
+            catch (Exception exc)
+            {
+                logger.Error(exc);
+            }
+
+            if (conn.State == ConnectionState.Open)
+            {
+                foreach (var tweet in allTweets)
+                {
+
+                    SqlCommand cmd = new SqlCommand("[sp_InsertTweet]", conn);
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    cmd.Parameters.Add("@UserAddressName", SqlDbType.VarChar, 500).Value = tweet.UserAddressName;
+                    cmd.Parameters.Add("@UserID", SqlDbType.BigInt).Value = tweet.UserID;
+                    cmd.Parameters.Add("@UserImagePath", SqlDbType.VarChar, 500).Value = tweet.UserImagePath;
+                    cmd.Parameters.Add("@UserFullName", SqlDbType.VarChar, 500).Value = tweet.UserFullName;
+                    cmd.Parameters.Add("@UserTwitterName", SqlDbType.VarChar, 500).Value = tweet.UserTwitterName;
+                    cmd.Parameters.Add("@Date", SqlDbType.VarChar, 500).Value = tweet.Date;
+                    cmd.Parameters.Add("@StatusPath", SqlDbType.VarChar, 500).Value = tweet.StatusPath;
+                    cmd.Parameters.Add("@DateTimeTitle", SqlDbType.VarChar, 500).Value = tweet.DateTimeTitle;
+                    cmd.Parameters.Add("@ConversationID", SqlDbType.BigInt).Value = tweet.ConversationID;
+                    cmd.Parameters.Add("@OriginalDateTime", SqlDbType.BigInt).Value = tweet.OriginalDateTime;
+                    cmd.Parameters.Add("@OriginalDateTimeMS", SqlDbType.BigInt).Value = tweet.OriginalDateTimeMS;
+                    cmd.Parameters.Add("@DateTime", SqlDbType.DateTime2).Value = tweet.DateTime;
+                    cmd.Parameters.Add("@TweetText", SqlDbType.VarChar, 500).Value = tweet.TweetText;
+                    cmd.Parameters.Add("@TweetLanguage", SqlDbType.VarChar, 500).Value = tweet.TweetLanguage;
+                    cmd.Parameters.Add("@TweetImagePath", SqlDbType.VarChar, 500).Value = tweet.TweetImagePath;
+                    cmd.Parameters.Add("@NumberOfReplies", SqlDbType.Int).Value = tweet.NumberOfReplies;
+                    cmd.Parameters.Add("@NumberOfRetweets", SqlDbType.Int).Value = tweet.NumberOfRetweets;
+                    cmd.Parameters.Add("@NumberOFFavourites", SqlDbType.Int).Value = tweet.NumberOFFavourites;
+                    cmd.Parameters.Add("@NumberOfErrorsDuringParsing", SqlDbType.Int).Value = tweet.NumberOfErrorsDuringParsing;
+
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                        logger.Info("Tweets inserted into the database succesfully");
+                    }
+                    catch (Exception exc)
+                    {
+                        logger.Error(exc);
+                    }
+                }
+
+                conn.Close();
+            }
+
+            #endregion
+
+            #endregion
 
             logger.Info("ParseTwitterData ended");
 

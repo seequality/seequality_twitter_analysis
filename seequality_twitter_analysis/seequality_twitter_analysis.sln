@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApplication", "Sample
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Libraries", "Libraries\Libraries.csproj", "{D6BD5469-3BE3-484D-A5A8-2539F3B1ED14}"
 EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Database", "Database\Database.sqlproj", "{3860C4C3-7D87-460F-921A-07FA6056E71D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,18 @@ Global
 		{D6BD5469-3BE3-484D-A5A8-2539F3B1ED14}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D6BD5469-3BE3-484D-A5A8-2539F3B1ED14}.Release|x64.ActiveCfg = Release|x64
 		{D6BD5469-3BE3-484D-A5A8-2539F3B1ED14}.Release|x64.Build.0 = Release|x64
+		{3860C4C3-7D87-460F-921A-07FA6056E71D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3860C4C3-7D87-460F-921A-07FA6056E71D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3860C4C3-7D87-460F-921A-07FA6056E71D}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{3860C4C3-7D87-460F-921A-07FA6056E71D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3860C4C3-7D87-460F-921A-07FA6056E71D}.Debug|x64.Build.0 = Debug|Any CPU
+		{3860C4C3-7D87-460F-921A-07FA6056E71D}.Debug|x64.Deploy.0 = Debug|Any CPU
+		{3860C4C3-7D87-460F-921A-07FA6056E71D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3860C4C3-7D87-460F-921A-07FA6056E71D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3860C4C3-7D87-460F-921A-07FA6056E71D}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{3860C4C3-7D87-460F-921A-07FA6056E71D}.Release|x64.ActiveCfg = Release|Any CPU
+		{3860C4C3-7D87-460F-921A-07FA6056E71D}.Release|x64.Build.0 = Release|Any CPU
+		{3860C4C3-7D87-460F-921A-07FA6056E71D}.Release|x64.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
