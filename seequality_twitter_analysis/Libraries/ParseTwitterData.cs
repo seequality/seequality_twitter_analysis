@@ -3,6 +3,8 @@ using Libraries.Classes;
 using NLog;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,10 +16,11 @@ namespace Libraries
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
-        public static void ParseAllFilesFromDirectory(string targetDirectory)
+        public static void ParseAllFilesFromDirectory(string targetDirectory, string targetSQLConnectionString)
         {
             logger.Info("ParseTwitterData started");
 
+            string sqlConnectionString = targetSQLConnectionString;
             List<string> allFilesPaths = new List<string>();
             List<FileContent> filesContent = new List<FileContent>();
             List<Tweet> allTweets = new List<Tweet>();
@@ -28,7 +31,7 @@ namespace Libraries
             allFilesPaths = Directory.GetFiles(targetDirectory).ToList();
 
             // read all files and convert to the HTML document
-            foreach (var filePath in allFilesPaths.Take(1))
+            foreach (var filePath in allFilesPaths.Where(x=>x.Contains("OneDrive_since20170925until20170926")))
             {
                 try
                 {
@@ -54,13 +57,46 @@ namespace Libraries
 
             #region Save file info statistics
 
-            //TODO possibly if needed at some point save to database as table [File]
-            //foreach (var fileContent in filesContent)
-            //{
-            //    var filePath = fileContent.FilePath;
-            //    var fileSize = fileContent.FileSize;
-            //    var htmlDocument = fileContent.HTMLDocument;
-            //}
+            SqlConnection conn = new SqlConnection(sqlConnectionString);
+
+            try
+            {
+                conn.Open();
+            }
+            catch (Exception exc)
+            {
+                logger.Error(exc);
+            }
+
+            if (conn.State == ConnectionState.Open)
+            {
+                foreach (var fileContent in filesContent)
+                {
+                    var filePath = fileContent.FilePath;
+                    var fileSize = fileContent.FileSize;
+                    var htmlDocument = fileContent.HTMLDocument;
+
+
+                    SqlCommand cmd = new SqlCommand("[sp_InsertFileContent]", conn);
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    cmd.Parameters.Add("@FilePath", SqlDbType.VarChar, 1000).Value = fileContent.FilePath;
+                    cmd.Parameters.Add("@FileSize", SqlDbType.BigInt).Value = fileContent.FileSize;
+                    cmd.Parameters.Add("@HTMLDocument", SqlDbType.NVarChar, -1).Value = fileContent.HTMLDocument.OuterHtml;
+
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                        logger.Info("FileContent inserted into the database succesfully");
+                    }
+                    catch (Exception exc)
+                    {
+                        logger.Error(exc);
+                    }
+                }
+
+                conn.Close();
+            }
 
             #endregion
 
@@ -283,6 +319,7 @@ namespace Libraries
             }
 
             logger.Info("ParseTwitterData ended");
+
         }
     }
 }
