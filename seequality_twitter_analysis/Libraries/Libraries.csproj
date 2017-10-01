@@ -67,6 +67,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\FileContent.cs" />
+    <Compile Include="Classes\Tweet.cs" />
+    <Compile Include="HelperMethods.cs" />
     <Compile Include="ParseTwitterData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
