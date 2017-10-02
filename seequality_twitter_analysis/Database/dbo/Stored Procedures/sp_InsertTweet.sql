@@ -1,11 +1,12 @@
 ﻿
+
 CREATE PROCEDURE [dbo].[sp_InsertTweet] 
 (
 	@ExecutionID INT,
 	@UserAddressName [VARCHAR](500) = NULL,
 	@UserID [BIGINT] = NULL,
 	@UserImagePath [VARCHAR](500) = NULL,
-	@UserFullName [VARCHAR](500) = NULL,
+	@UserFullName [NVARCHAR](500) = NULL,
 	@UserTwitterName [VARCHAR](500) = NULL,
 	@Date [VARCHAR](500) = NULL,
 	@StatusPath [VARCHAR](500) = NULL,
@@ -14,7 +15,7 @@ CREATE PROCEDURE [dbo].[sp_InsertTweet]
 	@OriginalDateTime [BIGINT] = NULL,
 	@OriginalDateTimeMS [BIGINT] = NULL,
 	@DateTime [DATETIME2](7) = NULL,
-	@TweetText [VARCHAR](500) = NULL,
+	@TweetText [NVARCHAR](500) = NULL,
 	@TweetLanguage [VARCHAR](500) = NULL,
 	@TweetImagePath [VARCHAR](500) = NULL,
 	@NumberOfReplies [INT] = NULL,

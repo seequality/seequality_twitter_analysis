@@ -72,11 +72,11 @@ namespace Libraries
                 allFilesPaths = Directory.GetFiles(targetDirectory).ToList();
 
                 // read all files and convert to the HTML document
-                foreach (var filePath in allFilesPaths.Where(x => x.Contains("365")))
+                foreach (var filePath in allFilesPaths.Where(x => x.Contains("all_others_since20170925until20170926")))
                 {
                     try
                     {
-                        string _htmlDocuments = @"<!DOCTYPE html><html><head><title>Page</title></head>" + File.ReadAllText(filePath) + "</html>";
+                        string _htmlDocuments = @"<!DOCTYPE html><html><head><title>Page</title></head>" + File.ReadAllText(filePath, Encoding.UTF8) + "</html>";
                         HtmlDocument htmlDocument = new HtmlDocument();
                         htmlDocument.LoadHtml(_htmlDocuments);
 
@@ -274,6 +274,7 @@ namespace Libraries
                                 .GetAttributeValue("data-conversation-id", String.Empty)
                                 .ToString()
                                 .Trim());
+
                         }
                         catch (Exception exc)
                         {
@@ -344,10 +345,11 @@ namespace Libraries
                         try
                         {
                             currentTweet.TweetLanguage = tweet
-                                .SelectSingleNode(".//div[@class='js-tweet-text-container']//p[@class='TweetTextSize  js-tweet-text tweet-text']")
-                                .GetAttributeValue("lang", String.Empty)
-                                .ToString()
-                                .Trim();
+                            .SelectSingleNode(".//div[@class='js-tweet-text-container']//p[@class='TweetTextSize  js-tweet-text tweet-texts' or @class='TweetTextSize  js-tweet-text tweet-text tweet-text-rtl']")
+                            .GetAttributeValue("lang", String.Empty)
+                            .ToString()
+                            .Trim();
+                            
                         }
                         catch (Exception exc)
                         {
@@ -459,7 +461,7 @@ namespace Libraries
                         cmd.Parameters.Add("@UserAddressName", SqlDbType.VarChar, 500).Value = tweet.UserAddressName;
                         cmd.Parameters.Add("@UserID", SqlDbType.BigInt).Value = tweet.UserID;
                         cmd.Parameters.Add("@UserImagePath", SqlDbType.VarChar, 500).Value = tweet.UserImagePath;
-                        cmd.Parameters.Add("@UserFullName", SqlDbType.VarChar, 500).Value = tweet.UserFullName;
+                        cmd.Parameters.Add("@UserFullName", SqlDbType.NVarChar, 500).Value = tweet.UserFullName;
                         cmd.Parameters.Add("@UserTwitterName", SqlDbType.VarChar, 500).Value = tweet.UserTwitterName;
                         cmd.Parameters.Add("@Date", SqlDbType.VarChar, 500).Value = tweet.Date;
                         cmd.Parameters.Add("@StatusPath", SqlDbType.VarChar, 500).Value = tweet.StatusPath;
@@ -468,7 +470,7 @@ namespace Libraries
                         cmd.Parameters.Add("@OriginalDateTime", SqlDbType.BigInt).Value = tweet.OriginalDateTime;
                         cmd.Parameters.Add("@OriginalDateTimeMS", SqlDbType.BigInt).Value = tweet.OriginalDateTimeMS;
                         cmd.Parameters.Add("@DateTime", SqlDbType.DateTime2).Value = tweet.DateTime;
-                        cmd.Parameters.Add("@TweetText", SqlDbType.VarChar, 500).Value = tweet.TweetText;
+                        cmd.Parameters.Add("@TweetText", SqlDbType.NVarChar, 500).Value = tweet.TweetText;
                         cmd.Parameters.Add("@TweetLanguage", SqlDbType.VarChar, 500).Value = tweet.TweetLanguage;
                         cmd.Parameters.Add("@TweetImagePath", SqlDbType.VarChar, 500).Value = tweet.TweetImagePath;
                         cmd.Parameters.Add("@NumberOfReplies", SqlDbType.Int).Value = tweet.NumberOfReplies;

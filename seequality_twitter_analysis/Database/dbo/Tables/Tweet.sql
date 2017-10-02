@@ -4,7 +4,7 @@
     [UserAddressName]             VARCHAR (500)  NULL,
     [UserID]                      BIGINT         NULL,
     [UserImagePath]               VARCHAR (500)  NULL,
-    [UserFullName]                VARCHAR (500)  NULL,
+    [UserFullName]                NVARCHAR (500) NULL,
     [UserTwitterName]             VARCHAR (500)  NULL,
     [Date]                        VARCHAR (500)  NULL,
     [StatusPath]                  VARCHAR (500)  NULL,
@@ -21,6 +21,8 @@
     [NumberOFFavourites]          INT            NULL,
     [NumberOfErrorsDuringParsing] INT            NULL
 );
+
+
 
 
 
