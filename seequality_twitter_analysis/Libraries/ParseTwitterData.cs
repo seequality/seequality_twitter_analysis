@@ -24,31 +24,34 @@ namespace Libraries
             List<string> allFilesPaths = new List<string>();
             List<FileContent> filesContent = new List<FileContent>();
             List<Tweet> allTweets = new List<Tweet>();
-            SqlConnection conn;
+            SqlConnection conn = new SqlConnection(sqlConnectionString);
+            SqlCommand cmd;
+            int ExecutionID = 0;
 
-            #region Read files and save into database
+            #region Start execution log in database
 
-            #region Read files
-
-            // get all files from the given directory
-            allFilesPaths = Directory.GetFiles(targetDirectory).ToList();
-
-            // read all files and convert to the HTML document
-            foreach (var filePath in allFilesPaths.Where(x=>x.Contains("OneDrive_since20170925until20170926")))
+            try
             {
+                conn.Open();
+            }
+            catch (Exception exc)
+            {
+                logger.Error(exc);
+            }
+
+            if (conn.State == ConnectionState.Open)
+            {
+
+                cmd = new SqlCommand("[sp_LogStart]", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add("@ExecutionID", SqlDbType.Int).Direction = ParameterDirection.Output;
+
                 try
                 {
-                    string _htmlDocuments = @"<!DOCTYPE html><html><head><title>Page</title></head>" + File.ReadAllText(filePath) + "</html>";
-                    HtmlDocument htmlDocument = new HtmlDocument();
-                    htmlDocument.LoadHtml(_htmlDocuments);
-
-                    FileContent fileContent = new FileContent();
-                    fileContent.FilePath = filePath;
-                    fileContent.FileSize = new System.IO.FileInfo(filePath).Length;
-                    fileContent.HTMLDocument = htmlDocument.DocumentNode;
-                    filesContent.Add(fileContent);
-
-                    logger.Info("Reading file " + filePath + " done");
+                    cmd.ExecuteNonQuery();
+                    ExecutionID = Convert.ToInt32(cmd.Parameters["@ExecutionID"].Value);
+                    logger.Info("LogStart done");
                 }
                 catch (Exception exc)
                 {
@@ -58,34 +61,463 @@ namespace Libraries
 
             #endregion
 
-            #region Save file info and content into database
-
-            conn = new SqlConnection(sqlConnectionString);
-
-            try
+            if (ExecutionID != 0)
             {
-                conn.Open();
-            }
-            catch (Exception exc)
-            {
-                logger.Error(exc);
-            }
 
-            if (conn.State == ConnectionState.Open)
-            {
+                #region Read files and save into database
+
+                #region Read files
+
+                // get all files from the given directory
+                allFilesPaths = Directory.GetFiles(targetDirectory).ToList();
+
+                // read all files and convert to the HTML document
+                foreach (var filePath in allFilesPaths.Where(x => x.Contains("365")))
+                {
+                    try
+                    {
+                        string _htmlDocuments = @"<!DOCTYPE html><html><head><title>Page</title></head>" + File.ReadAllText(filePath) + "</html>";
+                        HtmlDocument htmlDocument = new HtmlDocument();
+                        htmlDocument.LoadHtml(_htmlDocuments);
+
+                        FileContent fileContent = new FileContent();
+                        fileContent.FilePath = filePath;
+                        fileContent.FileSize = new System.IO.FileInfo(filePath).Length;
+                        fileContent.HTMLDocument = htmlDocument.DocumentNode;
+                        filesContent.Add(fileContent);
+
+                        logger.Info("Reading file " + filePath + " done");
+                    }
+                    catch (Exception exc)
+                    {
+                        logger.Error(exc);
+                    }
+                }
+
+                #endregion
+
+                #region Save file info and content into database
+
+                try
+                {
+                    conn.Open();
+                }
+                catch (Exception exc)
+                {
+                    logger.Error(exc);
+                }
+
+                if (conn.State == ConnectionState.Open)
+                {
+                    foreach (var fileContent in filesContent)
+                    {
+                        cmd = new SqlCommand("[sp_InsertFileContent]", conn);
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        cmd.Parameters.Add("@ExecutionID", SqlDbType.Int).Value = ExecutionID;
+                        cmd.Parameters.Add("@FilePath", SqlDbType.VarChar, 1000).Value = fileContent.FilePath;
+                        cmd.Parameters.Add("@FileSize", SqlDbType.BigInt).Value = fileContent.FileSize;
+                        cmd.Parameters.Add("@HTMLDocument", SqlDbType.NVarChar, -1).Value = fileContent.HTMLDocument.OuterHtml;
+
+                        try
+                        {
+                            cmd.ExecuteNonQuery();
+                            logger.Info("FileContent inserted into the database succesfully");
+                        }
+                        catch (Exception exc)
+                        {
+                            logger.Error(exc);
+                        }
+                    }
+
+                    conn.Close();
+                }
+
+                #endregion
+
+                #endregion
+
+                #region Parse documents and save tweets into database
+
+                #region Parse documents 
+
                 foreach (var fileContent in filesContent)
                 {
-                    SqlCommand cmd = new SqlCommand("[sp_InsertFileContent]", conn);
+                    int iNumberOfTweets = 0;
+                    int iTotalNumberOfErrorsDuringParsing = 0;
+
+                    var tweets = fileContent.HTMLDocument.SelectNodes("//div[@class='content']");
+                    foreach (var tweet in tweets)
+                    {
+                        Tweet currentTweet = new Tweet();
+                        int iNumberOfErrorsDuringParsing = 0;
+
+                        #region Parse tweet header
+
+                        try
+                        {
+                            currentTweet.UserAddressName = tweet
+                                .SelectSingleNode(".//div[@class='stream-item-header']//a[@class='account-group js-account-group js-action-profile js-user-profile-link js-nav']")
+                                .GetAttributeValue("href", String.Empty)
+                                .ToString()
+                                .Trim();
+                        }
+                        catch (Exception exc)
+                        {
+                            iNumberOfErrorsDuringParsing++;
+                            logger.Error("Error during parsing " + "UserAddressName" + " " + exc);
+                        }
+
+                        try
+                        {
+                            currentTweet.UserID = Convert.ToInt64(tweet
+                                .SelectSingleNode(".//div[@class='stream-item-header']//a[@class='account-group js-account-group js-action-profile js-user-profile-link js-nav']")
+                                .GetAttributeValue("data-user-id", String.Empty)
+                                .ToString()
+                                .Trim()
+                            );
+                        }
+                        catch (Exception exc)
+                        {
+                            iNumberOfErrorsDuringParsing++;
+                            logger.Error("Error during parsing " + "UserID" + " " + exc);
+                        }
+
+                        try
+                        {
+                            currentTweet.UserImagePath = tweet
+                                .SelectSingleNode(".//div[@class='stream-item-header']//img[@class='avatar js-action-profile-avatar']")
+                                .GetAttributeValue("src", String.Empty)
+                                .ToString()
+                                .Trim();
+                        }
+                        catch (Exception exc)
+                        {
+                            iNumberOfErrorsDuringParsing++;
+                            logger.Error("Error during parsing " + "UserImagePath" + " " + exc);
+                        }
+
+                        try
+                        {
+                            currentTweet.UserFullName = tweet
+                                .SelectSingleNode(".//div[@class='stream-item-header']//strong[@class='fullname show-popup-with-id ']")
+                                .InnerText
+                                .ToString()
+                                .Trim();
+                        }
+                        catch (Exception exc)
+                        {
+                            iNumberOfErrorsDuringParsing++;
+                            logger.Error("Error during parsing " + "UserFullName" + " " + exc);
+                        }
+
+                        try
+                        {
+                            currentTweet.UserTwitterName = tweet
+                                .SelectSingleNode(".//div[@class='stream-item-header']//a[@class='account-group js-account-group js-action-profile js-user-profile-link js-nav']//span[@class='username u-dir']")
+                                .InnerText
+                                .ToString()
+                                .Trim();
+                        }
+                        catch (Exception exc)
+                        {
+                            iNumberOfErrorsDuringParsing++;
+                            logger.Error("Error during parsing " + "UserTwitterName" + " " + exc);
+                        }
+
+                        try
+                        {
+                            currentTweet.Date = tweet
+                                .SelectSingleNode(".//div[@class='stream-item-header']//small[@class='time']")
+                                .InnerText
+                                .ToString()
+                                .Trim();
+                        }
+                        catch (Exception exc)
+                        {
+                            iNumberOfErrorsDuringParsing++;
+                            logger.Error("Error during parsing " + "Date" + " " + exc);
+                        }
+
+                        try
+                        {
+                            currentTweet.StatusPath = tweet.
+                                SelectSingleNode(".//div[@class='stream-item-header']//small[@class='time']//a[@class='tweet-timestamp js-permalink js-nav js-tooltip']")
+                                .GetAttributeValue("href", String.Empty)
+                                .ToString()
+                                .Trim();
+                        }
+                        catch (Exception exc)
+                        {
+                            iNumberOfErrorsDuringParsing++;
+                            logger.Error("Error during parsing " + "StatusPath" + " " + exc);
+                        }
+
+                        try
+                        {
+                            currentTweet.DateTimeTitle = tweet
+                                .SelectSingleNode(".//div[@class='stream-item-header']//small[@class='time']//a[@class='tweet-timestamp js-permalink js-nav js-tooltip']")
+                                .GetAttributeValue("title", String.Empty)
+                                .ToString()
+                                .Trim();
+                        }
+                        catch (Exception exc)
+                        {
+                            iNumberOfErrorsDuringParsing++;
+                            logger.Error("Error during parsing " + "DateTimeTitle" + " " + exc);
+                        }
+
+                        try
+                        {
+                            currentTweet.ConversationID = Convert.ToInt64(tweet
+                                .SelectSingleNode(".//div[@class='stream-item-header']//small[@class='time']//a[@class='tweet-timestamp js-permalink js-nav js-tooltip']")
+                                .GetAttributeValue("data-conversation-id", String.Empty)
+                                .ToString()
+                                .Trim());
+                        }
+                        catch (Exception exc)
+                        {
+                            iNumberOfErrorsDuringParsing++;
+                            logger.Error("Error during parsing " + "ConversationID" + " " + exc);
+                        }
+
+                        try
+                        {
+                            currentTweet.OriginalDateTime = Convert.ToInt64(tweet.
+                                SelectSingleNode(".//div[@class='stream-item-header']//small[@class='time']//a[@class='tweet-timestamp js-permalink js-nav js-tooltip']//span[@class='_timestamp js-short-timestamp ']")
+                                .GetAttributeValue("data-time", String.Empty)
+                                .ToString()
+                                .Trim());
+                        }
+                        catch (Exception exc)
+                        {
+                            iNumberOfErrorsDuringParsing++;
+                            logger.Error("Error during parsing " + "OriginalDateTime" + " " + exc);
+                        }
+
+                        try
+                        {
+                            currentTweet.OriginalDateTimeMS = Convert.ToInt64(tweet
+                                .SelectSingleNode(".//div[@class='stream-item-header']//small[@class='time']//a[@class='tweet-timestamp js-permalink js-nav js-tooltip']//span[@class='_timestamp js-short-timestamp ']")
+                                .GetAttributeValue("data-time-ms", String.Empty)
+                                .ToString()
+                                .Trim());
+                        }
+                        catch (Exception exc)
+                        {
+                            iNumberOfErrorsDuringParsing++;
+                            logger.Error("Error during parsing " + "OriginalDateTimeMS" + " " + exc);
+                        }
+
+                        try
+                        {
+                            currentTweet.DateTime = HelperMethods.UnixTimeStampToDateTime(Convert.ToInt64(tweet
+                                .SelectSingleNode(".//div[@class='stream-item-header']//small[@class='time']//a[@class='tweet-timestamp js-permalink js-nav js-tooltip']//span[@class='_timestamp js-short-timestamp ']")
+                                .GetAttributeValue("data-time", String.Empty)
+                                .ToString()
+                                .Trim()));
+                        }
+                        catch (Exception exc)
+                        {
+                            iNumberOfErrorsDuringParsing++;
+                            logger.Error("Error during parsing " + "DateTime" + " " + exc);
+                        }
+
+                        #endregion
+
+                        #region Parse tweet text
+
+                        try
+                        {
+                            currentTweet.TweetText = tweet
+                                .SelectSingleNode(".//div[@class='js-tweet-text-container']")
+                                .InnerText
+                                .ToString()
+                                .Trim();
+                        }
+                        catch (Exception exc)
+                        {
+                            iNumberOfErrorsDuringParsing++;
+                            logger.Error("Error during parsing " + "TweetText" + " " + exc);
+                        }
+
+                        try
+                        {
+                            currentTweet.TweetLanguage = tweet
+                                .SelectSingleNode(".//div[@class='js-tweet-text-container']//p[@class='TweetTextSize  js-tweet-text tweet-text']")
+                                .GetAttributeValue("lang", String.Empty)
+                                .ToString()
+                                .Trim();
+                        }
+                        catch (Exception exc)
+                        {
+                            iNumberOfErrorsDuringParsing++;
+                            logger.Error("Error during parsing " + "TweetLanguage" + " " + exc);
+                        }
+
+                        #endregion
+
+                        #region Parse tweet adaptive media
+
+                        try
+                        {
+                            //currentTweet.TweetImagePath = "";
+                            currentTweet.TweetImagePath = tweet
+                                .SelectSingleNode(".//div[@class='AdaptiveMediaOuterContainer']//img")
+                                .GetAttributeValue("src", String.Empty)
+                                .ToString()
+                                .Trim();
+                        }
+                        catch (Exception exc)
+                        {
+                            iNumberOfErrorsDuringParsing++;
+                            logger.Error("Error during parsing " + "TweetImagePath" + " " + exc);
+                        }
+
+                        #endregion
+
+                        #region Parse tweet footer
+
+                        try
+                        {
+                            currentTweet.NumberOfReplies = Convert.ToInt32(tweet
+                                .SelectSingleNode(".//div[@class='stream-item-footer']//div[@class='ProfileTweet-actionCountList u-hiddenVisually']//span[@class='ProfileTweet-action--reply u-hiddenVisually']//span[@class='ProfileTweet-actionCount']")
+                                .GetAttributeValue("data-tweet-stat-count", String.Empty)
+                                .ToString()
+                                .Trim());
+                        }
+                        catch (Exception exc)
+                        {
+                            iNumberOfErrorsDuringParsing++;
+                            logger.Error("Error during parsing " + "NumberOfReplies" + " " + exc);
+                        }
+
+                        try
+                        {
+                            currentTweet.NumberOfRetweets = Convert.ToInt32(tweet
+                                .SelectSingleNode(".//div[@class='stream-item-footer']//div[@class='ProfileTweet-actionCountList u-hiddenVisually']//span[@class='ProfileTweet-action--retweet u-hiddenVisually']//span[@class='ProfileTweet-actionCount']")
+                                .GetAttributeValue("data-tweet-stat-count", String.Empty)
+                                .ToString()
+                                .Trim());
+                        }
+                        catch (Exception exc)
+                        {
+                            iNumberOfErrorsDuringParsing++;
+                            logger.Error("Error during parsing " + "NumberOfRetweets" + " " + exc);
+                        }
+
+                        try
+                        {
+                            currentTweet.NumberOFFavourites = Convert.ToInt32(tweet
+                                .SelectSingleNode(".//div[@class='stream-item-footer']//div[@class='ProfileTweet-actionCountList u-hiddenVisually']//span[@class='ProfileTweet-action--favorite u-hiddenVisually']//span[@class='ProfileTweet-actionCount']")
+                                .GetAttributeValue("data-tweet-stat-count", String.Empty)
+                                .ToString()
+                                .Trim());
+                        }
+                        catch (Exception exc)
+                        {
+                            iNumberOfErrorsDuringParsing++;
+                            logger.Error("Error during parsing " + "NumberOFFavourites" + " " + exc);
+                        }
+
+                        #endregion
+
+                        currentTweet.NumberOfErrorsDuringParsing = iNumberOfErrorsDuringParsing;
+                        allTweets.Add(currentTweet);
+
+                        iNumberOfTweets++;
+                        iTotalNumberOfErrorsDuringParsing = iTotalNumberOfErrorsDuringParsing + iNumberOfErrorsDuringParsing;
+                    }
+
+                    logger.Info("Parsed " + fileContent.FilePath + ", number of tweets: " + iNumberOfTweets + ", number of errors during parsing: " + iTotalNumberOfErrorsDuringParsing);
+                }
+
+                #endregion
+
+                #region Save tweets into database
+
+                conn = new SqlConnection(sqlConnectionString);
+
+                try
+                {
+                    conn.Open();
+                }
+                catch (Exception exc)
+                {
+                    logger.Error(exc);
+                }
+
+                if (conn.State == ConnectionState.Open)
+                {
+                    foreach (var tweet in allTweets)
+                    {
+
+                        cmd = new SqlCommand("[sp_InsertTweet]", conn);
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        cmd.Parameters.Add("@ExecutionID", SqlDbType.Int).Value = ExecutionID;
+                        cmd.Parameters.Add("@UserAddressName", SqlDbType.VarChar, 500).Value = tweet.UserAddressName;
+                        cmd.Parameters.Add("@UserID", SqlDbType.BigInt).Value = tweet.UserID;
+                        cmd.Parameters.Add("@UserImagePath", SqlDbType.VarChar, 500).Value = tweet.UserImagePath;
+                        cmd.Parameters.Add("@UserFullName", SqlDbType.VarChar, 500).Value = tweet.UserFullName;
+                        cmd.Parameters.Add("@UserTwitterName", SqlDbType.VarChar, 500).Value = tweet.UserTwitterName;
+                        cmd.Parameters.Add("@Date", SqlDbType.VarChar, 500).Value = tweet.Date;
+                        cmd.Parameters.Add("@StatusPath", SqlDbType.VarChar, 500).Value = tweet.StatusPath;
+                        cmd.Parameters.Add("@DateTimeTitle", SqlDbType.VarChar, 500).Value = tweet.DateTimeTitle;
+                        cmd.Parameters.Add("@ConversationID", SqlDbType.BigInt).Value = tweet.ConversationID;
+                        cmd.Parameters.Add("@OriginalDateTime", SqlDbType.BigInt).Value = tweet.OriginalDateTime;
+                        cmd.Parameters.Add("@OriginalDateTimeMS", SqlDbType.BigInt).Value = tweet.OriginalDateTimeMS;
+                        cmd.Parameters.Add("@DateTime", SqlDbType.DateTime2).Value = tweet.DateTime;
+                        cmd.Parameters.Add("@TweetText", SqlDbType.VarChar, 500).Value = tweet.TweetText;
+                        cmd.Parameters.Add("@TweetLanguage", SqlDbType.VarChar, 500).Value = tweet.TweetLanguage;
+                        cmd.Parameters.Add("@TweetImagePath", SqlDbType.VarChar, 500).Value = tweet.TweetImagePath;
+                        cmd.Parameters.Add("@NumberOfReplies", SqlDbType.Int).Value = tweet.NumberOfReplies;
+                        cmd.Parameters.Add("@NumberOfRetweets", SqlDbType.Int).Value = tweet.NumberOfRetweets;
+                        cmd.Parameters.Add("@NumberOFFavourites", SqlDbType.Int).Value = tweet.NumberOFFavourites;
+                        cmd.Parameters.Add("@NumberOfErrorsDuringParsing", SqlDbType.Int).Value = tweet.NumberOfErrorsDuringParsing;
+
+                        try
+                        {
+                            cmd.ExecuteNonQuery();
+                        }
+                        catch (Exception exc)
+                        {
+                            logger.Error(exc);
+                        }
+                    }
+
+                    conn.Close();
+
+                    logger.Info("Tweets inserted into the database succesfully");
+                }
+
+                #endregion
+
+                #endregion
+
+                #region Stop execution log in database 
+
+                try
+                {
+                    conn.Open();
+                }
+                catch (Exception exc)
+                {
+                    logger.Error(exc);
+                }
+
+                if (conn.State == ConnectionState.Open)
+                {
+
+                    cmd = new SqlCommand("[sp_LogStop]", conn);
                     cmd.CommandType = CommandType.StoredProcedure;
 
-                    cmd.Parameters.Add("@FilePath", SqlDbType.VarChar, 1000).Value = fileContent.FilePath;
-                    cmd.Parameters.Add("@FileSize", SqlDbType.BigInt).Value = fileContent.FileSize;
-                    cmd.Parameters.Add("@HTMLDocument", SqlDbType.NVarChar, -1).Value = fileContent.HTMLDocument.OuterHtml;
+                    cmd.Parameters.Add("@ExecutionID", SqlDbType.Int).Value = ExecutionID;
 
                     try
                     {
                         cmd.ExecuteNonQuery();
-                        logger.Info("FileContent inserted into the database succesfully");
+                        logger.Info("LogStop done");
                     }
                     catch (Exception exc)
                     {
@@ -93,369 +525,13 @@ namespace Libraries
                     }
                 }
 
-                conn.Close();
+                #endregion
+
             }
-
-            #endregion
-
-            #endregion
-
-            #region Parse documents and save tweets into database
-
-            #region Parse documents 
-
-            foreach (var fileContent in filesContent)
+            else
             {
-                int iNumberOfTweets = 0;
-                int iTotalNumberOfErrorsDuringParsing = 0;
-
-                var tweets = fileContent.HTMLDocument.SelectNodes("//div[@class='content']");
-                foreach (var tweet in tweets)
-                {
-                    Tweet currentTweet = new Tweet();
-                    int iNumberOfErrorsDuringParsing = 0;
-
-                    #region Parse tweet header
-
-                    try
-                    {
-                        currentTweet.UserAddressName = tweet
-                            .SelectSingleNode(".//div[@class='stream-item-header']//a[@class='account-group js-account-group js-action-profile js-user-profile-link js-nav']")
-                            .GetAttributeValue("href", String.Empty)
-                            .ToString()
-                            .Trim();
-                    }
-                    catch (Exception exc)
-                    {
-                        iNumberOfErrorsDuringParsing++;
-                        logger.Error("Error during parsing " + "UserAddressName" + " " + exc);
-                    }
-
-                    try
-                    {
-                        currentTweet.UserID = Convert.ToInt64(tweet
-                            .SelectSingleNode(".//div[@class='stream-item-header']//a[@class='account-group js-account-group js-action-profile js-user-profile-link js-nav']")
-                            .GetAttributeValue("data-user-id", String.Empty)
-                            .ToString()
-                            .Trim()
-                        );
-                    }
-                    catch (Exception exc)
-                    {
-                        iNumberOfErrorsDuringParsing++;
-                        logger.Error("Error during parsing " + "UserID" + " " + exc);
-                    }
-
-                    try
-                    {
-                        currentTweet.UserImagePath = tweet
-                            .SelectSingleNode(".//div[@class='stream-item-header']//img[@class='avatar js-action-profile-avatar']")
-                            .GetAttributeValue("src", String.Empty)
-                            .ToString()
-                            .Trim();
-                    }
-                    catch (Exception exc)
-                    {
-                        iNumberOfErrorsDuringParsing++;
-                        logger.Error("Error during parsing " + "UserImagePath" + " " + exc);
-                    }
-
-                    try
-                    {
-                        currentTweet.UserFullName = tweet
-                            .SelectSingleNode(".//div[@class='stream-item-header']//strong[@class='fullname show-popup-with-id ']")
-                            .InnerText
-                            .ToString()
-                            .Trim();
-                    }
-                    catch (Exception exc)
-                    {
-                        iNumberOfErrorsDuringParsing++;
-                        logger.Error("Error during parsing " + "UserFullName" + " " + exc); 
-                    }
-
-                    try
-                    {
-                        currentTweet.UserTwitterName = tweet
-                            .SelectSingleNode(".//div[@class='stream-item-header']//a[@class='account-group js-account-group js-action-profile js-user-profile-link js-nav']//span[@class='username u-dir']")
-                            .InnerText
-                            .ToString()
-                            .Trim();
-                    }
-                    catch (Exception exc)
-                    {
-                        iNumberOfErrorsDuringParsing++;
-                        logger.Error("Error during parsing " + "UserTwitterName" + " " + exc);
-                    }
-
-                    try
-                    {
-                        currentTweet.Date = tweet
-                            .SelectSingleNode(".//div[@class='stream-item-header']//small[@class='time']")
-                            .InnerText
-                            .ToString()
-                            .Trim();
-                    }
-                    catch (Exception exc)
-                    {
-                        iNumberOfErrorsDuringParsing++;
-                        logger.Error("Error during parsing " + "Date" + " " + exc);
-                    }
-
-                    try
-                    {
-                        currentTweet.StatusPath = tweet.
-                            SelectSingleNode(".//div[@class='stream-item-header']//small[@class='time']//a[@class='tweet-timestamp js-permalink js-nav js-tooltip']")
-                            .GetAttributeValue("href", String.Empty)
-                            .ToString()
-                            .Trim();
-                    }
-                    catch (Exception exc)
-                    {
-                        iNumberOfErrorsDuringParsing++;
-                        logger.Error("Error during parsing " + "StatusPath" + " " + exc);
-                    }
-
-                    try
-                    {
-                        currentTweet.DateTimeTitle = tweet
-                            .SelectSingleNode(".//div[@class='stream-item-header']//small[@class='time']//a[@class='tweet-timestamp js-permalink js-nav js-tooltip']")
-                            .GetAttributeValue("title", String.Empty)
-                            .ToString()
-                            .Trim();
-                    }
-                    catch (Exception exc)
-                    {
-                        iNumberOfErrorsDuringParsing++;
-                        logger.Error("Error during parsing " + "DateTimeTitle" + " " + exc);
-                    }
-
-                    try
-                    {
-                        currentTweet.ConversationID = Convert.ToInt64(tweet
-                            .SelectSingleNode(".//div[@class='stream-item-header']//small[@class='time']//a[@class='tweet-timestamp js-permalink js-nav js-tooltip']")
-                            .GetAttributeValue("data-conversation-id", String.Empty)
-                            .ToString()
-                            .Trim());
-                    }
-                    catch (Exception exc)
-                    {
-                        iNumberOfErrorsDuringParsing++;
-                        logger.Error("Error during parsing " + "ConversationID" + " " + exc);
-                    }
-
-                    try
-                    {
-                        currentTweet.OriginalDateTime = Convert.ToInt64(tweet.
-                            SelectSingleNode(".//div[@class='stream-item-header']//small[@class='time']//a[@class='tweet-timestamp js-permalink js-nav js-tooltip']//span[@class='_timestamp js-short-timestamp ']")
-                            .GetAttributeValue("data-time", String.Empty)
-                            .ToString()
-                            .Trim());
-                    }
-                    catch (Exception exc)
-                    {
-                        iNumberOfErrorsDuringParsing++;
-                        logger.Error("Error during parsing " + "OriginalDateTime" + " " + exc);
-                    }
-
-                    try
-                    {
-                        currentTweet.OriginalDateTimeMS = Convert.ToInt64(tweet
-                            .SelectSingleNode(".//div[@class='stream-item-header']//small[@class='time']//a[@class='tweet-timestamp js-permalink js-nav js-tooltip']//span[@class='_timestamp js-short-timestamp ']")
-                            .GetAttributeValue("data-time-ms", String.Empty)
-                            .ToString()
-                            .Trim());
-                    }
-                    catch (Exception exc)
-                    {
-                        iNumberOfErrorsDuringParsing++;
-                        logger.Error("Error during parsing " + "OriginalDateTimeMS" + " " + exc);
-                    }
-
-                    try
-                    {
-                        currentTweet.DateTime = HelperMethods.UnixTimeStampToDateTime(Convert.ToInt64(tweet
-                            .SelectSingleNode(".//div[@class='stream-item-header']//small[@class='time']//a[@class='tweet-timestamp js-permalink js-nav js-tooltip']//span[@class='_timestamp js-short-timestamp ']")
-                            .GetAttributeValue("data-time", String.Empty)
-                            .ToString()
-                            .Trim()));
-                    }
-                    catch (Exception exc)
-                    {
-                        iNumberOfErrorsDuringParsing++;
-                        logger.Error("Error during parsing " + "DateTime" + " " + exc);
-                    }
-
-                    #endregion
-
-                    #region Parse tweet text
-
-                    try
-                    {
-                        currentTweet.TweetText = tweet
-                            .SelectSingleNode(".//div[@class='js-tweet-text-container']")
-                            .InnerText
-                            .ToString()
-                            .Trim();
-                    }
-                    catch (Exception exc)
-                    {
-                        iNumberOfErrorsDuringParsing++;
-                        logger.Error("Error during parsing " + "TweetText" + " " + exc);
-                    }
-
-                    try
-                    {
-                        currentTweet.TweetLanguage = tweet
-                            .SelectSingleNode(".//div[@class='js-tweet-text-container']//p[@class='TweetTextSize  js-tweet-text tweet-text']")
-                            .GetAttributeValue("lang", String.Empty)
-                            .ToString()
-                            .Trim();
-                    }
-                    catch (Exception exc)
-                    {
-                        iNumberOfErrorsDuringParsing++;
-                        logger.Error("Error during parsing " + "TweetLanguage" + " " + exc);
-                    }
-
-                    #endregion
-
-                    #region Parse tweet adaptive media
-
-                    try
-                    {
-                        //currentTweet.TweetImagePath = "";
-                        currentTweet.TweetImagePath = tweet
-                            .SelectSingleNode(".//div[@class='AdaptiveMediaOuterContainer']//img")
-                            .GetAttributeValue("src", String.Empty)
-                            .ToString()
-                            .Trim();
-                    }
-                    catch (Exception exc)
-                    {
-                        iNumberOfErrorsDuringParsing++;
-                        logger.Error("Error during parsing " + "TweetImagePath" + " " + exc);
-                    }
-
-                    #endregion
-
-                    #region Parse tweet footer
-                    
-                    try
-                    {
-                        currentTweet.NumberOfReplies = Convert.ToInt32(tweet
-                            .SelectSingleNode(".//div[@class='stream-item-footer']//div[@class='ProfileTweet-actionCountList u-hiddenVisually']//span[@class='ProfileTweet-action--reply u-hiddenVisually']//span[@class='ProfileTweet-actionCount']")
-                            .GetAttributeValue("data-tweet-stat-count", String.Empty)
-                            .ToString()
-                            .Trim());
-                    }
-                    catch (Exception exc)
-                    {
-                        iNumberOfErrorsDuringParsing++;
-                        logger.Error("Error during parsing " + "NumberOfReplies" + " " + exc);
-                    }
-
-                    try
-                    {
-                        currentTweet.NumberOfRetweets = Convert.ToInt32(tweet
-                            .SelectSingleNode(".//div[@class='stream-item-footer']//div[@class='ProfileTweet-actionCountList u-hiddenVisually']//span[@class='ProfileTweet-action--retweet u-hiddenVisually']//span[@class='ProfileTweet-actionCount']")
-                            .GetAttributeValue("data-tweet-stat-count", String.Empty)
-                            .ToString()
-                            .Trim());
-                    }
-                    catch (Exception exc)
-                    {
-                        iNumberOfErrorsDuringParsing++;
-                        logger.Error("Error during parsing " + "NumberOfRetweets" + " " + exc);
-                    }
-
-                    try
-                    {
-                        currentTweet.NumberOFFavourites = Convert.ToInt32(tweet
-                            .SelectSingleNode(".//div[@class='stream-item-footer']//div[@class='ProfileTweet-actionCountList u-hiddenVisually']//span[@class='ProfileTweet-action--favorite u-hiddenVisually']//span[@class='ProfileTweet-actionCount']")
-                            .GetAttributeValue("data-tweet-stat-count", String.Empty)
-                            .ToString()
-                            .Trim());
-                    }
-                    catch (Exception exc)
-                    {
-                        iNumberOfErrorsDuringParsing++;
-                        logger.Error("Error during parsing " + "NumberOFFavourites" + " " + exc);
-                    }
-
-                    #endregion
-
-                    currentTweet.NumberOfErrorsDuringParsing = iNumberOfErrorsDuringParsing;
-                    allTweets.Add(currentTweet);
-
-                    iNumberOfTweets++;
-                    iTotalNumberOfErrorsDuringParsing = iTotalNumberOfErrorsDuringParsing + iNumberOfErrorsDuringParsing;
-                }
-
-                logger.Info("Parsed " + fileContent.FilePath + ", number of tweets: " + iNumberOfTweets + ", number of errors during parsing: " + iTotalNumberOfErrorsDuringParsing);
+                logger.Error("Error while setting up the database log");
             }
-
-            #endregion
-
-            #region Save tweets into database
-
-            conn = new SqlConnection(sqlConnectionString);
-
-            try
-            {
-                conn.Open();
-            }
-            catch (Exception exc)
-            {
-                logger.Error(exc);
-            }
-
-            if (conn.State == ConnectionState.Open)
-            {
-                foreach (var tweet in allTweets)
-                {
-
-                    SqlCommand cmd = new SqlCommand("[sp_InsertTweet]", conn);
-                    cmd.CommandType = CommandType.StoredProcedure;
-
-                    cmd.Parameters.Add("@UserAddressName", SqlDbType.VarChar, 500).Value = tweet.UserAddressName;
-                    cmd.Parameters.Add("@UserID", SqlDbType.BigInt).Value = tweet.UserID;
-                    cmd.Parameters.Add("@UserImagePath", SqlDbType.VarChar, 500).Value = tweet.UserImagePath;
-                    cmd.Parameters.Add("@UserFullName", SqlDbType.VarChar, 500).Value = tweet.UserFullName;
-                    cmd.Parameters.Add("@UserTwitterName", SqlDbType.VarChar, 500).Value = tweet.UserTwitterName;
-                    cmd.Parameters.Add("@Date", SqlDbType.VarChar, 500).Value = tweet.Date;
-                    cmd.Parameters.Add("@StatusPath", SqlDbType.VarChar, 500).Value = tweet.StatusPath;
-                    cmd.Parameters.Add("@DateTimeTitle", SqlDbType.VarChar, 500).Value = tweet.DateTimeTitle;
-                    cmd.Parameters.Add("@ConversationID", SqlDbType.BigInt).Value = tweet.ConversationID;
-                    cmd.Parameters.Add("@OriginalDateTime", SqlDbType.BigInt).Value = tweet.OriginalDateTime;
-                    cmd.Parameters.Add("@OriginalDateTimeMS", SqlDbType.BigInt).Value = tweet.OriginalDateTimeMS;
-                    cmd.Parameters.Add("@DateTime", SqlDbType.DateTime2).Value = tweet.DateTime;
-                    cmd.Parameters.Add("@TweetText", SqlDbType.VarChar, 500).Value = tweet.TweetText;
-                    cmd.Parameters.Add("@TweetLanguage", SqlDbType.VarChar, 500).Value = tweet.TweetLanguage;
-                    cmd.Parameters.Add("@TweetImagePath", SqlDbType.VarChar, 500).Value = tweet.TweetImagePath;
-                    cmd.Parameters.Add("@NumberOfReplies", SqlDbType.Int).Value = tweet.NumberOfReplies;
-                    cmd.Parameters.Add("@NumberOfRetweets", SqlDbType.Int).Value = tweet.NumberOfRetweets;
-                    cmd.Parameters.Add("@NumberOFFavourites", SqlDbType.Int).Value = tweet.NumberOFFavourites;
-                    cmd.Parameters.Add("@NumberOfErrorsDuringParsing", SqlDbType.Int).Value = tweet.NumberOfErrorsDuringParsing;
-
-                    try
-                    {
-                        cmd.ExecuteNonQuery();                        
-                    }
-                    catch (Exception exc)
-                    {
-                        logger.Error(exc);
-                    }
-                }
-
-                conn.Close();
-
-                logger.Info("Tweets inserted into the database succesfully");
-            }
-
-            #endregion
-
-            #endregion
 
             logger.Info("ParseTwitterData ended");
 
