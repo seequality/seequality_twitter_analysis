@@ -66,5 +66,8 @@
     <Build Include="dbo\Stored Procedures\sp_InsertFileContent.sql" />
     <Build Include="dbo\Tables\Tweet.sql" />
     <Build Include="dbo\Stored Procedures\sp_InsertTweet.sql" />
+    <Build Include="dbo\Tables\Executions.sql" />
+    <Build Include="dbo\Stored Procedures\sp_LogStop.sql" />
+    <Build Include="dbo\Stored Procedures\sp_LogStart.sql" />
   </ItemGroup>
 </Project>

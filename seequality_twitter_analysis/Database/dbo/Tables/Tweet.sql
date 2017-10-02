@@ -1,5 +1,6 @@
 ﻿CREATE TABLE [dbo].[Tweet] (
     [TweetID]                     INT            IDENTITY (1, 1) NOT NULL,
+    [ExecutionID]                 INT            NOT NULL,
     [UserAddressName]             VARCHAR (500)  NULL,
     [UserID]                      BIGINT         NULL,
     [UserImagePath]               VARCHAR (500)  NULL,
@@ -20,4 +21,6 @@
     [NumberOFFavourites]          INT            NULL,
     [NumberOfErrorsDuringParsing] INT            NULL
 );
+
+
 

@@ -1,7 +1,7 @@
 ﻿
-
 CREATE PROCEDURE [dbo].[sp_InsertTweet] 
 (
+	@ExecutionID INT,
 	@UserAddressName [VARCHAR](500) = NULL,
 	@UserID [BIGINT] = NULL,
 	@UserImagePath [VARCHAR](500) = NULL,
@@ -25,7 +25,8 @@ CREATE PROCEDURE [dbo].[sp_InsertTweet]
 AS
 INSERT INTO [dbo].[Tweet]
 (
-	[UserAddressName]
+	[ExecutionID]
+	,[UserAddressName]
 	,[UserID]
 	,[UserImagePath]
 	,[UserFullName]
@@ -47,6 +48,7 @@ INSERT INTO [dbo].[Tweet]
 )
 VALUES	
 (
+	@ExecutionID,
 	@UserAddressName,
 	@UserID,
 	@UserImagePath,
