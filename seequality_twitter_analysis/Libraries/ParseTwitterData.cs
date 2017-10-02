@@ -72,7 +72,7 @@ namespace Libraries
                 allFilesPaths = Directory.GetFiles(targetDirectory).ToList();
 
                 // read all files and convert to the HTML document
-                foreach (var filePath in allFilesPaths.Where(x => x.Contains("all_others_since20170925until20170926")))
+                foreach (var filePath in allFilesPaths.Where(x => x.Contains("the")))
                 {
                     try
                     {
@@ -345,7 +345,7 @@ namespace Libraries
                         try
                         {
                             currentTweet.TweetLanguage = tweet
-                            .SelectSingleNode(".//div[@class='js-tweet-text-container']//p[@class='TweetTextSize  js-tweet-text tweet-texts' or @class='TweetTextSize  js-tweet-text tweet-text tweet-text-rtl']")
+                            .SelectSingleNode(".//div[@class='js-tweet-text-container']//p[@class='TweetTextSize  js-tweet-text tweet-texts' or @class='TweetTextSize  js-tweet-text tweet-text' or @class='TweetTextSize  js-tweet-text tweet-text tweet-text-rtl']")
                             .GetAttributeValue("lang", String.Empty)
                             .ToString()
                             .Trim();
