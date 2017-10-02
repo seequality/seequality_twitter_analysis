@@ -72,7 +72,7 @@ namespace Libraries
                 allFilesPaths = Directory.GetFiles(targetDirectory).ToList();
 
                 // read all files and convert to the HTML document
-                foreach (var filePath in allFilesPaths.Where(x => x.Contains("the")))
+                foreach (var filePath in allFilesPaths.Where(x => x.Contains("alltheothers_since20170926until20170927")))
                 {
                     try
                     {
@@ -198,9 +198,9 @@ namespace Libraries
                         }
 
                         try
-                        {
+                        {   
                             currentTweet.UserFullName = tweet
-                                .SelectSingleNode(".//div[@class='stream-item-header']//strong[@class='fullname show-popup-with-id ']")
+                                .SelectSingleNode(".//div[@class='stream-item-header']//strong[@class='fullname show-popup-with-id ' or @class='fullname show-popup-with-id fullname-rtl']")
                                 .InnerText
                                 .ToString()
                                 .Trim();
@@ -274,7 +274,6 @@ namespace Libraries
                                 .GetAttributeValue("data-conversation-id", String.Empty)
                                 .ToString()
                                 .Trim());
-
                         }
                         catch (Exception exc)
                         {
