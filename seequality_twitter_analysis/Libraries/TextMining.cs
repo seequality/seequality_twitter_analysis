@@ -34,7 +34,37 @@ namespace Libraries
             }
 
             SaveTextMiningResultsToDatabase(targetSQLConnectionString, tweetsWithoutSpecialCharacters, TextMiningMethod);
- 
+        }
+
+        public static void GetHashtagsAndSaveIntoDatabase(string targetSQLConnectionString, List<TweetText> tweets)
+        {
+            string TextMiningMethod = "Hashtag";
+            int TextMiningMethodID;
+
+            List<TextMiningResult> tweetsWithoutSpecialCharacters = new List<TextMiningResult>();
+
+            TextMiningMethodID = HelperMethods.GetTextMiningMethodIDFromDatabase(targetSQLConnectionString, TextMiningMethod);
+
+            foreach (var tweet in tweets)
+            {
+                // remove all characters except # for hashtags
+                var words = tmRemoveSpecialCharacters(tweet.Text, '#').Split(' ');
+
+                foreach (var word in words)
+                {
+                    // get only hashtags
+                    if (word.StartsWith("#"))
+                    {
+                        TextMiningResult textMiningResult = new TextMiningResult();
+                        textMiningResult.TweetID = tweet.ID;
+                        textMiningResult.TextMiningMethodID = TextMiningMethodID;
+                        textMiningResult.TweetText = word.Trim().ToLower();
+                        tweetsWithoutSpecialCharacters.Add(textMiningResult);
+                    }
+                }
+            }
+
+            SaveTextMiningResultsToDatabase(targetSQLConnectionString, tweetsWithoutSpecialCharacters, TextMiningMethod);
         }
 
         public static void SaveTextMiningResultsToDatabase(string targetSQLConnectionString, List<TextMiningResult> results, string TextMiningMethod)
@@ -85,6 +115,19 @@ namespace Libraries
             foreach (char c in str)
             {
                 if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == ' ')
+                {
+                    sb.Append(c);
+                }
+            }
+            return sb.ToString();
+        }
+
+        public static string tmRemoveSpecialCharacters(this string str, char exceptChar)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (char c in str)
+            {
+                if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == ' ' || c == exceptChar)
                 {
                     sb.Append(c);
                 }

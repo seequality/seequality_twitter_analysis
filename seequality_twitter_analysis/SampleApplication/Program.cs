@@ -19,6 +19,7 @@ namespace SampleApplication
 
             var tweets_en = GetTwitterData.GetTweets(sqlConnectionString, "en");
             TextMining.GetOriginalTweetWithoutSpecialCharactersAndSaveIntoDatabase(sqlConnectionString, tweets_en);
+            TextMining.GetHashtagsAndSaveIntoDatabase(sqlConnectionString, tweets_en);
 
 
             Console.WriteLine("done");
