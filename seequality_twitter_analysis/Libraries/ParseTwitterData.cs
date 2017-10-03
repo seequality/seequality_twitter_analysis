@@ -362,12 +362,114 @@ namespace Libraries
 
                         try
                         {
-                            //currentTweet.TweetImagePath = "";
-                            currentTweet.TweetImagePath = tweet
-                                .SelectSingleNode(".//div[@class='AdaptiveMediaOuterContainer']//img")
-                                .GetAttributeValue("src", String.Empty)
-                                .ToString()
-                                .Trim();
+                            string mediaFileType = "";
+
+                            if (mediaFileType == "")
+                            {
+                                try
+                                {
+                                    if (tweet.SelectSingleNode(".//div[@class='QuoteMedia-singlePhoto']").InnerHtml.Length > 0)
+                                        mediaFileType = "qm single photo";
+                                }
+                                catch (Exception exc) { }
+                            }
+
+                            if (mediaFileType == "")
+                            {
+                                try
+                                {
+                                    if (tweet.SelectSingleNode(".//div[@class='AdaptiveMedia-singlePhoto']").InnerHtml.Length > 0)
+                                        mediaFileType = "am single photo";
+                                }
+                                catch (Exception exc) { }
+                            }
+
+                            if (mediaFileType == "")
+                            {
+                                try
+                                {
+                                    if (tweet.SelectSingleNode(".//div[@class='AdaptiveMedia-doublePhoto']").InnerHtml.Length > 0)
+                                        mediaFileType = "am double photo";
+                                }
+                                catch (Exception exc) { }
+                            }
+
+                            if (mediaFileType == "")
+                            {
+                                try
+                                {
+                                    if (tweet.SelectSingleNode(".//div[@class='QuoteMedia-doublePhoto']").InnerHtml.Length > 0)
+                                        mediaFileType = "qm double photo";
+                                }
+                                catch (Exception exc) { }
+                            }
+
+                            if (mediaFileType == "")
+                            {
+                                try
+                                {
+                                    if (tweet.SelectSingleNode(".//div[@class='AdaptiveMedia-photoContainer js-adaptive-photo ']").InnerHtml.Length > 0)
+                                        mediaFileType = "js-adaptive photo";
+                                }
+                                catch (Exception exc) { }
+                            }
+
+                            if (mediaFileType == "")
+                            {
+                                try
+                                {
+                                    if (tweet.SelectSingleNode(".//div[@class='AdaptiveMedia-video']//div//div").InnerHtml.Length > 0)
+                                        mediaFileType = "video";
+                                }
+                                catch (Exception exc) { }
+                            }
+
+                            if (mediaFileType == "")
+                            {
+                                try
+                                {
+                                    if (tweet.SelectSingleNode(".//div[@class='js-macaw-cards-iframe-container card-type-summary_large_image']").InnerHtml.Length > 0)
+                                        mediaFileType = "card image";
+                                }
+                                catch (Exception exc) { }
+                            }
+
+                            if (mediaFileType == "")
+                            {
+                                try
+                                {
+                                    if (tweet.SelectSingleNode(".//div[@class='js-macaw-cards-iframe-container card-type-periscope_broadcast' or @class='js-macaw-cards-iframe-container initial-card-height card-type-periscope_broadcast']").InnerHtml.Length > 0)
+                                        mediaFileType = "card periscope broadcast";
+                                }
+                                catch (Exception exc) { }
+                            }
+
+
+                            if (mediaFileType == "")
+                            {
+                                try
+                                {
+                                    if (tweet.SelectSingleNode(".//div[@class='QuoteMedia']").InnerHtml.Length > 0)
+                                        mediaFileType = "quote media";
+                                }
+                                catch (Exception exc) { }
+                            }
+
+                            if (mediaFileType == "")
+                            {
+                                try
+                                {
+                                    if (tweet.SelectSingleNode(".//div[@class='QuoteTweet-container']").InnerHtml.Length > 0)
+                                        mediaFileType = "quote tweet";
+                                }
+                                catch (Exception exc) { }
+                            }
+
+                            
+
+
+                            currentTweet.TweetImagePath = mediaFileType;
+
                         }
                         catch (Exception exc)
                         {
