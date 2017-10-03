@@ -70,4 +70,7 @@
     <Build Include="dbo\Stored Procedures\sp_LogStop.sql" />
     <Build Include="dbo\Stored Procedures\sp_LogStart.sql" />
   </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="Script.PostDeployment1.sql" />
+  </ItemGroup>
 </Project>

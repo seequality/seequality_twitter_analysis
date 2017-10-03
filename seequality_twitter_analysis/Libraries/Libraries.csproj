@@ -67,10 +67,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\FileContent.cs" />
+    <Compile Include="Classes\TextMiningResult.cs" />
     <Compile Include="Classes\Tweet.cs" />
+    <Compile Include="Classes\TweetText.cs" />
+    <Compile Include="GetTwitterData.cs" />
     <Compile Include="HelperMethods.cs" />
     <Compile Include="ParseTwitterData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TextMining.cs" />
+    <Compile Include="TwitterData.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="NLog.config">
