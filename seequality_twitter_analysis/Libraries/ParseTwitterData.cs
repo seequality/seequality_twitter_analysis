@@ -362,119 +362,280 @@ namespace Libraries
 
                         try
                         {
-                            string mediaFileType = "";
+                            string tweetMediaName = "";
+                            string tweetMediaType = "";
 
-                            if (mediaFileType == "")
+                            if (tweetMediaName == "")
                             {
                                 try
                                 {
                                     if (tweet.SelectSingleNode(".//div[@class='QuoteMedia-singlePhoto']").InnerHtml.Length > 0)
-                                        mediaFileType = "qm single photo";
+                                    {
+                                        tweetMediaName = "QuoteMedia-singlePhoto";
+                                        tweetMediaType = "photo";
+                                    }
                                 }
                                 catch (Exception exc) { }
                             }
 
-                            if (mediaFileType == "")
+                            if (tweetMediaName == "")
                             {
                                 try
                                 {
                                     if (tweet.SelectSingleNode(".//div[@class='AdaptiveMedia-singlePhoto']").InnerHtml.Length > 0)
-                                        mediaFileType = "am single photo";
+                                    { 
+                                        tweetMediaName = "AdaptiveMedia-singlePhoto";
+                                        tweetMediaType = "photo";
+                                    }
                                 }
                                 catch (Exception exc) { }
                             }
 
-                            if (mediaFileType == "")
+                            if (tweetMediaName == "")
                             {
                                 try
                                 {
                                     if (tweet.SelectSingleNode(".//div[@class='AdaptiveMedia-doublePhoto']").InnerHtml.Length > 0)
-                                        mediaFileType = "am double photo";
+                                    {
+                                        tweetMediaName = "AdaptiveMedia-doublePhoto";
+                                        tweetMediaType = "photo";
+                                    }
                                 }
                                 catch (Exception exc) { }
                             }
 
-                            if (mediaFileType == "")
+                            if (tweetMediaName == "")
                             {
                                 try
                                 {
                                     if (tweet.SelectSingleNode(".//div[@class='QuoteMedia-doublePhoto']").InnerHtml.Length > 0)
-                                        mediaFileType = "qm double photo";
+                                    {
+                                        tweetMediaName = "QuoteMedia-doublePhoto";
+                                        tweetMediaType = "photo";
+                                    }
                                 }
                                 catch (Exception exc) { }
                             }
 
-                            if (mediaFileType == "")
+                            if (tweetMediaName == "")
                             {
                                 try
                                 {
                                     if (tweet.SelectSingleNode(".//div[@class='AdaptiveMedia-photoContainer js-adaptive-photo ']").InnerHtml.Length > 0)
-                                        mediaFileType = "js-adaptive photo";
+                                    {
+                                        tweetMediaName = "js-adaptive photo";
+                                        tweetMediaType = "photo";
+                                    }
                                 }
                                 catch (Exception exc) { }
                             }
 
-                            if (mediaFileType == "")
+                            if (tweetMediaName == "")
                             {
                                 try
                                 {
                                     if (tweet.SelectSingleNode(".//div[@class='AdaptiveMedia-video']//div//div").InnerHtml.Length > 0)
-                                        mediaFileType = "video";
+                                    {
+                                        tweetMediaName = "AdaptiveMedia-video";
+                                        tweetMediaType = "video";
+                                    }
                                 }
                                 catch (Exception exc) { }
                             }
 
-                            if (mediaFileType == "")
+                            if (tweetMediaName == "")
                             {
                                 try
                                 {
                                     if (tweet.SelectSingleNode(".//div[@class='js-macaw-cards-iframe-container card-type-summary_large_image']").InnerHtml.Length > 0)
-                                        mediaFileType = "card image";
+                                    {
+                                        tweetMediaName = "card-type-summary_large_image";
+                                        tweetMediaType = "photo";
+                                    }
                                 }
                                 catch (Exception exc) { }
                             }
 
-                            if (mediaFileType == "")
+                            if (tweetMediaName == "")
                             {
                                 try
                                 {
                                     if (tweet.SelectSingleNode(".//div[@class='js-macaw-cards-iframe-container card-type-periscope_broadcast' or @class='js-macaw-cards-iframe-container initial-card-height card-type-periscope_broadcast']").InnerHtml.Length > 0)
-                                        mediaFileType = "card periscope broadcast";
+                                    {
+                                        tweetMediaName = "card-type-periscope_broadcast";
+                                        tweetMediaType = "card";
+                                    }
                                 }
                                 catch (Exception exc) { }
                             }
 
 
-                            if (mediaFileType == "")
+                            if (tweetMediaName == "")
                             {
                                 try
                                 {
                                     if (tweet.SelectSingleNode(".//div[@class='QuoteMedia']").InnerHtml.Length > 0)
-                                        mediaFileType = "quote media";
+                                    {
+                                        tweetMediaName = "QuoteMedia";
+                                        tweetMediaType = "quote";
+                                    }
                                 }
                                 catch (Exception exc) { }
                             }
 
-                            if (mediaFileType == "")
+                            if (tweetMediaName == "")
                             {
                                 try
                                 {
                                     if (tweet.SelectSingleNode(".//div[@class='QuoteTweet-container']").InnerHtml.Length > 0)
-                                        mediaFileType = "quote tweet";
+                                    {
+                                        tweetMediaName = "QuoteTweet-container";
+                                        tweetMediaType = "quote";
+                                    }
                                 }
                                 catch (Exception exc) { }
                             }
 
-                            
+                            if (tweetMediaName == "")
+                            {
+                                try
+                                {
+                                    if (tweet.SelectSingleNode(".//div[@class='AdaptiveMedia-badge']").InnerHtml.Length > 0)
+                                    {
+                                        tweetMediaName = "AdaptiveMedia-badge";
+                                        tweetMediaType = "quote";
+                                    }
+                                }
+                                catch (Exception exc) { }
+                            }
 
+                            if (tweetMediaName == "")
+                            {
+                                try
+                                {
+                                    if (tweet.SelectSingleNode(".//div[@class='PlayableMedia PlayableMedia--gif watched']").InnerHtml.Length > 0)
+                                    {
+                                        tweetMediaName = "PlayableMedia PlayableMedia--gif watched";
+                                        tweetMediaType = "gif";
+                                    }
+                                }
+                                catch (Exception exc) { }
+                            }
 
-                            currentTweet.TweetImagePath = mediaFileType;
+                            if (tweetMediaName == "")
+                            {
+                                try
+                                {
+                                    if (tweet.SelectSingleNode(".//div[@class='AdaptiveMedia-halfHeightPhotoContainer']").InnerHtml.Length > 0)
+                                    {
+                                        tweetMediaName = "AdaptiveMedia-halfHeightPhotoContainer";
+                                        tweetMediaType = "photo";
+                                    }
+                                }
+                                catch (Exception exc) { }
+                            }
+
+                            if (tweetMediaName == "")
+                            {
+                                try
+                                {
+                                    if (tweet.SelectSingleNode(".//div[@class='AdaptiveMedia-twoThirdsWidthPhoto']").InnerHtml.Length > 0)
+                                    {
+                                        tweetMediaName = "AdaptiveMedia-twoThirdsWidthPhoto";
+                                        tweetMediaType = "photo";
+                                    }
+                                }
+                                catch (Exception exc) { }
+                            }
+
+                            if (tweetMediaName == "")
+                            {
+                                try
+                                {
+                                    if (tweet.SelectSingleNode(".//div[@class='AdaptiveMedia-triplePhoto']").InnerHtml.Length > 0)
+                                    {
+                                        tweetMediaName = "AdaptiveMedia-triplePhoto";
+                                        tweetMediaType = "photo";
+                                    }
+                                }
+                                catch (Exception exc) { }
+                            }
+
+                            if (tweetMediaName == "")
+                            {
+                                try
+                                {
+                                    if (tweet.SelectSingleNode(".//div[@class='AdaptiveMedia-halfHeightPhoto']").InnerHtml.Length > 0)
+                                    {
+                                        tweetMediaName = "AdaptiveMedia-halfHeightPhoto";
+                                        tweetMediaType = "photo";
+                                    }
+                                }
+                                catch (Exception exc) { }
+                            }
+
+                            if (tweetMediaName == "")
+                            {
+                                try
+                                {
+                                    if (tweet.SelectSingleNode(".//div[@class='PlayableMedia PlayableMedia--video watched']").InnerHtml.Length > 0)
+                                    {
+                                        tweetMediaName = "PlayableMedia PlayableMedia--video watched";
+                                        tweetMediaType = "video";
+                                    }
+                                }
+                                catch (Exception exc) { }
+                            }
+
+                            if (tweetMediaName == "")
+                            {
+                                try
+                                {
+                                    if (tweet.SelectSingleNode(".//div[@class='AdaptiveMedia-videoContainer']").InnerHtml.Length > 0)
+                                    {
+                                        tweetMediaName = "AdaptiveMedia-videoContainer";
+                                        tweetMediaType = "video";
+                                    }
+                                }
+                                catch (Exception exc) { }
+                            }
+
+                            if (tweetMediaName == "")
+                            {
+                                try
+                                {
+                                    if (tweet.SelectSingleNode(".//div[@class='AdaptiveMedia-halfWidthPhoto']").InnerHtml.Length > 0)
+                                    {
+                                        tweetMediaName = "AdaptiveMedia-halfWidthPhoto";
+                                        tweetMediaType = "photo";
+                                    }
+                                }
+                                catch (Exception exc) { }
+                            }
+
+                            if (tweetMediaType != "")
+                            {
+                                currentTweet.TweetMediaType = tweetMediaType;
+                            }
+                            else
+                            {
+                                currentTweet.TweetMediaType = "N/A";
+                            }
+
+                            if (tweetMediaName != "")
+                            {
+                                currentTweet.TweetMediaName = tweetMediaName;
+                            }
+                            else
+                            {
+                                currentTweet.TweetMediaName = "N/A";
+                            }
 
                         }
                         catch (Exception exc)
                         {
                             iNumberOfErrorsDuringParsing++;
-                            logger.Error("Error during parsing " + "TweetImagePath" + " " + exc);
+                            logger.Error("Error during parsing " + "tweet media" + " " + exc);
                         }
 
                         #endregion
@@ -573,7 +734,8 @@ namespace Libraries
                         cmd.Parameters.Add("@DateTime", SqlDbType.DateTime2).Value = tweet.DateTime;
                         cmd.Parameters.Add("@TweetText", SqlDbType.NVarChar, 500).Value = tweet.TweetText;
                         cmd.Parameters.Add("@TweetLanguage", SqlDbType.VarChar, 500).Value = tweet.TweetLanguage;
-                        cmd.Parameters.Add("@TweetImagePath", SqlDbType.VarChar, 500).Value = tweet.TweetImagePath;
+                        cmd.Parameters.Add("@TweetMediaName", SqlDbType.VarChar, 500).Value = tweet.TweetMediaName;
+                        cmd.Parameters.Add("@TweetMediaType", SqlDbType.VarChar, 500).Value = tweet.TweetMediaType;
                         cmd.Parameters.Add("@NumberOfReplies", SqlDbType.Int).Value = tweet.NumberOfReplies;
                         cmd.Parameters.Add("@NumberOfRetweets", SqlDbType.Int).Value = tweet.NumberOfRetweets;
                         cmd.Parameters.Add("@NumberOFFavourites", SqlDbType.Int).Value = tweet.NumberOFFavourites;

@@ -1,6 +1,4 @@
-﻿
-
-CREATE PROCEDURE [dbo].[sp_InsertTweet] 
+﻿CREATE PROCEDURE [dbo].[sp_InsertTweet] 
 (
 	@ExecutionID INT,
 	@UserAddressName [VARCHAR](500) = NULL,
@@ -17,7 +15,8 @@ CREATE PROCEDURE [dbo].[sp_InsertTweet]
 	@DateTime [DATETIME2](7) = NULL,
 	@TweetText [NVARCHAR](500) = NULL,
 	@TweetLanguage [VARCHAR](500) = NULL,
-	@TweetImagePath [VARCHAR](500) = NULL,
+	@TweetMediaName [VARCHAR](500) NULL,
+	@TweetMediaType [VARCHAR](500) NULL,
 	@NumberOfReplies [INT] = NULL,
 	@NumberOfRetweets [INT] = NULL,
 	@NumberOFFavourites [INT] = NULL,
@@ -41,7 +40,8 @@ INSERT INTO [dbo].[Tweet]
 	,[DateTime]
 	,[TweetText]
 	,[TweetLanguage]
-	,[TweetImagePath]
+	,[TweetMediaName]
+	,[TweetMediaType]
 	,[NumberOfReplies]
 	,[NumberOfRetweets]
 	,[NumberOFFavourites]
@@ -64,7 +64,8 @@ VALUES
 	@DateTime,
 	@TweetText,
 	@TweetLanguage,
-	@TweetImagePath,
+	@TweetMediaName,
+	@TweetMediaType,
 	@NumberOfReplies,
 	@NumberOfRetweets,
 	@NumberOFFavourites,
