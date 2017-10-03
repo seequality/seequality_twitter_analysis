@@ -29,7 +29,7 @@ namespace Libraries
                 TextMiningResult textMiningResult = new TextMiningResult();
                 textMiningResult.TweetID = tweet.ID;
                 textMiningResult.TextMiningMethodID = TextMiningMethodID;
-                textMiningResult.TweetText = tmRemoveSpecialCharacters(tweet.Text);
+                textMiningResult.TweetText = tmRemoveSpecialCharacters(tweet.Text).Trim().ToLower();
                 tweetsWithoutSpecialCharacters.Add(textMiningResult);
             }
 
