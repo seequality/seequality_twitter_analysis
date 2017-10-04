@@ -12,4 +12,4 @@ Post-Deployment Script Template
 -- Fill table [TextMiningMethod]
 INSERT INTO [TextMiningMethod] ([TextMiningMethodName]) VALUES ('Original tweet without special characters')
 INSERT INTO [TextMiningMethod] ([TextMiningMethodName]) VALUES ('Hashtag')
-
+INSERT INTO [TextMiningMethod] ([TextMiningMethodName]) VALUES ('Twitter accounts')

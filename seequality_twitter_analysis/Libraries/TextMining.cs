@@ -67,6 +67,42 @@ namespace Libraries
             SaveTextMiningResultsToDatabase(targetSQLConnectionString, tweetsWithoutSpecialCharacters, TextMiningMethod);
         }
 
+        public static void GetAccountsAndSaveIntoDatabase(string targetSQLConnectionString, List<TweetText> tweets)
+        {
+            string TextMiningMethod = "Twitter accounts";
+            int TextMiningMethodID;
+
+            List<TextMiningResult> tweetsWithoutSpecialCharacters = new List<TextMiningResult>();
+
+            TextMiningMethodID = HelperMethods.GetTextMiningMethodIDFromDatabase(targetSQLConnectionString, TextMiningMethod);
+
+            foreach (var tweet in tweets)
+            {
+                // remove all characters except @ for accounts
+                var words = tmRemoveSpecialCharacters(tweet.Text, '@').Split(' ');
+
+                foreach (var word in words)
+                {
+                    // get only accounts
+                    if (word.StartsWith("@"))
+                    {
+                        string accountName = word.Trim().ToLower();
+                        if (accountName.Length > 1)
+                        {
+                            TextMiningResult textMiningResult = new TextMiningResult();
+                            textMiningResult.TweetID = tweet.ID;
+                            textMiningResult.TextMiningMethodID = TextMiningMethodID;
+                            textMiningResult.TweetText = accountName;
+                            tweetsWithoutSpecialCharacters.Add(textMiningResult);
+                        }
+                    }
+                }
+            }
+
+            SaveTextMiningResultsToDatabase(targetSQLConnectionString, tweetsWithoutSpecialCharacters, TextMiningMethod);
+        }
+
+
         public static void SaveTextMiningResultsToDatabase(string targetSQLConnectionString, List<TextMiningResult> results, string TextMiningMethod)
         {
             SqlConnection conn = new SqlConnection(targetSQLConnectionString);
