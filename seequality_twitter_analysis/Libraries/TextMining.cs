@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +15,48 @@ namespace Libraries
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
+        public static void GetTheStopWordsFromFileAndLoadIntoDatabase(string stopWordsFileName, string targetSQLConnectionString)
+        {
+            SqlConnection conn = new SqlConnection(targetSQLConnectionString);
+            SqlCommand cmd;
+
+            List<string> stopWords = File.ReadAllLines(stopWordsFileName).ToList();
+
+            try
+            {
+                conn.Open();
+            }
+            catch (Exception exc)
+            {
+                logger.Error(exc);
+            }
+
+            if (conn.State == ConnectionState.Open)
+            {
+
+                foreach (var stopWord in stopWords)
+                {
+
+                    cmd = new SqlCommand("[sp_InsertStopWord]", conn);
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    cmd.Parameters.Add("@StopWord", SqlDbType.VarChar, 50).Value = stopWord;
+
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (Exception exc)
+                    {
+                        logger.Error(exc);
+                    }
+                }
+
+                conn.Close();
+
+                logger.Info("Text mining method stopwords done");
+            }
+        }
 
         public static void GetOriginalTweetWithoutSpecialCharactersAndSaveIntoDatabase(string targetSQLConnectionString, List<TweetText> tweets)
         {
@@ -105,7 +148,6 @@ namespace Libraries
 
             SaveTextMiningResultsToDatabase(targetSQLConnectionString, tweetsWithoutSpecialCharacters, TextMiningMethod);
         }
-
 
         public static void SaveTextMiningResultsToDatabase(string targetSQLConnectionString, List<TextMiningResult> results, string TextMiningMethod)
         {
