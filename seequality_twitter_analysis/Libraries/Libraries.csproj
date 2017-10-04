@@ -68,6 +68,7 @@
   <ItemGroup>
     <Compile Include="Classes\FileContent.cs" />
     <Compile Include="Classes\TextMiningResult.cs" />
+    <Compile Include="Classes\tmTweet.cs" />
     <Compile Include="Classes\Tweet.cs" />
     <Compile Include="Classes\TweetText.cs" />
     <Compile Include="GetTwitterData.cs" />

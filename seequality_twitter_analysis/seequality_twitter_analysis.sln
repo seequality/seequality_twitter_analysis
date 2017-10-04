@@ -12,6 +12,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Files", "Files", "{062D950F-512E-4EF3-807E-4B99EF1924F0}"
 	ProjectSection(SolutionItems) = preProject
 		EnglishStopWords.txt = EnglishStopWords.txt
+		EnglishWords.txt = EnglishWords.txt
 	EndProjectSection
 EndProject
 Global

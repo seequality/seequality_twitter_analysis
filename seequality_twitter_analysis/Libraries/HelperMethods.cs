@@ -58,5 +58,38 @@ namespace Libraries
             
             return TextMiningMethodID;
         }
+
+        public static void CleanDatabase(string targetSQLConnectionString, bool cleanSource)
+        {
+            SqlConnection conn = new SqlConnection(targetSQLConnectionString);
+            SqlCommand cmd;
+
+            try
+            {
+                conn.Open();
+            }
+            catch (Exception exc)
+            {
+                logger.Error(exc);
+            }
+
+            if (conn.State == ConnectionState.Open)
+            {
+
+                cmd = new SqlCommand("sp_CleanTables", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add("@CleanSource", SqlDbType.Bit).Value = cleanSource;
+
+                try
+                {
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception exc)
+                {
+                    logger.Error(exc);
+                }
+            }
+        }
     }
 }

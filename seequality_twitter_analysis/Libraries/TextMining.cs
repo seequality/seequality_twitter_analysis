@@ -15,6 +15,98 @@ namespace Libraries
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
+        public static void MineEntireTweetTextsAndSaveIntoDatabase(string targetSQLConnectionString, List<TweetText> tweets, string englishWordsDictionaryPath, string englishStopWordsDictionaryPath)
+        {
+            string TextMiningMethod = "MineEntireTweetTextsAndSaveIntoDatabase";
+
+            List<tmTweet> textMiningResults = new List<tmTweet>();
+
+            foreach (var tweet in tweets)
+            {
+                tmTweet textMiningResult = new tmTweet();
+                textMiningResult.TweetID = tweet.ID;
+                textMiningResult.OriginalTweetWithoutSpecialCharacters = tmRemoveSpecialCharacters(tweet.Text);
+                textMiningResult.OriginalTweetEnglishWordsOnly = tmRemoveNonEnglishWords(tweet.Text, englishWordsDictionaryPath);
+                textMiningResult.OriginalTweetEnglishWordsOnlyWithoutStopWords = tmRemoveNonEnglishWordsAndStopWords(tweet.Text, englishWordsDictionaryPath, englishStopWordsDictionaryPath) ;
+                textMiningResults.Add(textMiningResult);
+            }
+
+            SqlConnection conn = new SqlConnection(targetSQLConnectionString);
+            SqlCommand cmd;
+
+            try
+            {
+                conn.Open();
+            }
+            catch (Exception exc)
+            {
+                logger.Error(exc);
+            }
+
+            if (conn.State == ConnectionState.Open)
+            {
+                foreach (var result in textMiningResults)
+                {
+
+                    cmd = new SqlCommand("[sp_InsertTMTweet]", conn);
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    cmd.Parameters.Add("@TweetID", SqlDbType.Int).Value = result.TweetID;
+                    cmd.Parameters.Add("@OriginalTweetWithoutSpecialCharacters", SqlDbType.NVarChar,500).Value = result.OriginalTweetWithoutSpecialCharacters;
+                    cmd.Parameters.Add("@OriginalTweetEnglishWordsOnly", SqlDbType.NVarChar, 500).Value = result.OriginalTweetEnglishWordsOnly;
+                    cmd.Parameters.Add("@OriginalTweetEnglishWordsOnlyWithoutStopWords", SqlDbType.NVarChar, 500).Value = result.OriginalTweetEnglishWordsOnlyWithoutStopWords;
+
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (Exception exc)
+                    {
+                        logger.Error(exc);
+                    }
+                }
+
+                conn.Close();
+
+                logger.Info("Text mining method " + TextMiningMethod + " done");
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         public static void GetTheStopWordsFromFileAndLoadIntoDatabase(string stopWordsFileName, string targetSQLConnectionString)
         {
             SqlConnection conn = new SqlConnection(targetSQLConnectionString);
@@ -226,7 +318,40 @@ namespace Libraries
                     sb.Append(c);
                 }
             }
-            return sb.ToString();
+            return sb.ToString().Trim().ToLower();
+        }
+
+        public static string tmRemoveNonEnglishWords(string str, string englishWordDictionaryPath)
+        {
+            string _str = tmRemoveSpecialCharacters(str);
+            StringBuilder output = new StringBuilder();
+
+            foreach (var word in _str.Split(' '))
+            {
+                if (File.ReadAllText(englishWordDictionaryPath).Contains(word))
+                {
+                    output.Append(word + " ");
+                }
+
+            }
+
+            return output.ToString().Trim().ToLower();
+        }
+
+        public static string tmRemoveNonEnglishWordsAndStopWords(string str, string englishWordsDictionaryPath, string englishStopWordsDictionaryPath)
+        {
+            string _str = tmRemoveSpecialCharacters(str);
+            StringBuilder output = new StringBuilder();
+
+            foreach (var word in _str.Split(' '))
+            {
+                if (File.ReadAllText(englishWordsDictionaryPath).Contains(word) && (!File.ReadAllText(englishStopWordsDictionaryPath).Contains(word)))
+                {
+                    output.Append(word + " ");
+                }
+            }
+
+            return output.ToString().Trim().ToLower();
         }
 
         public static string tmRemoveSpecialCharacters(this string str, char exceptChar)
@@ -239,7 +364,7 @@ namespace Libraries
                     sb.Append(c);
                 }
             }
-            return sb.ToString();
+            return sb.ToString().Replace("  ","").Trim().ToLower();
         }
 
         public static List<string> tmTokenize1Gram(string str, bool removeSpecialCharacters)
@@ -257,6 +382,8 @@ namespace Libraries
             }
             return tokens;
         }
+
+   
 
     }
 }
