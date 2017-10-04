@@ -55,11 +55,15 @@ namespace Libraries
                     // get only hashtags
                     if (word.StartsWith("#"))
                     {
-                        TextMiningResult textMiningResult = new TextMiningResult();
-                        textMiningResult.TweetID = tweet.ID;
-                        textMiningResult.TextMiningMethodID = TextMiningMethodID;
-                        textMiningResult.TweetText = word.Trim().ToLower();
-                        tweetsWithoutSpecialCharacters.Add(textMiningResult);
+                        string hashtag = word.Trim().ToLower();
+                        if (hashtag.Length > 1)
+                        {
+                            TextMiningResult textMiningResult = new TextMiningResult();
+                            textMiningResult.TweetID = tweet.ID;
+                            textMiningResult.TextMiningMethodID = TextMiningMethodID;
+                            textMiningResult.TweetText = hashtag;
+                            tweetsWithoutSpecialCharacters.Add(textMiningResult);
+                        }
                     }
                 }
             }
