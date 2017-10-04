@@ -79,6 +79,31 @@ namespace Libraries
             SaveTextMiningResultsToDatabase(targetSQLConnectionString, tweetsWithoutSpecialCharacters, TextMiningMethod);
         }
 
+        public static void Tokenize1GramAndSaveIntoDatabase(string targetSQLConnectionString, List<TweetText> tweets, bool removeSpecialCharacters)
+        {
+            string TextMiningMethod = "N-gram 1 remove special characters : " + removeSpecialCharacters;
+            int TextMiningMethodID;
+
+            List<TextMiningResult> tweetsWithoutSpecialCharacters = new List<TextMiningResult>();
+
+            TextMiningMethodID = HelperMethods.GetTextMiningMethodIDFromDatabase(targetSQLConnectionString, TextMiningMethod);
+
+            foreach (var tweet in tweets)
+            {
+                List<string> words = tmTokenize1Gram(tweet.Text, removeSpecialCharacters);
+                foreach (var word in words)
+                {
+                    TextMiningResult textMiningResult = new TextMiningResult();
+                    textMiningResult.TweetID = tweet.ID;
+                    textMiningResult.TextMiningMethodID = TextMiningMethodID;
+                    textMiningResult.TweetText = word;
+                    tweetsWithoutSpecialCharacters.Add(textMiningResult);
+                }
+            }
+
+            SaveTextMiningResultsToDatabase(targetSQLConnectionString, tweetsWithoutSpecialCharacters, TextMiningMethod);
+        }
+
         public static void GetHashtagsAndSaveIntoDatabase(string targetSQLConnectionString, List<TweetText> tweets)
         {
             string TextMiningMethod = "Hashtag";
@@ -215,6 +240,22 @@ namespace Libraries
                 }
             }
             return sb.ToString();
+        }
+
+        public static List<string> tmTokenize1Gram(string str, bool removeSpecialCharacters)
+        {
+            List<string> tokens = new List<string>();
+
+            if (removeSpecialCharacters)
+            {
+                tokens = tmRemoveSpecialCharacters(str).Split(' ').ToList().Select(x=> x.Trim().ToLower()).Where(x => x.Length > 0).ToList();
+            }
+
+            else
+            {
+                tokens = str.Split(' ').ToList();
+            }
+            return tokens;
         }
 
     }

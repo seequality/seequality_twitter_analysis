@@ -22,7 +22,13 @@ namespace SampleApplication
             //TextMining.GetOriginalTweetWithoutSpecialCharactersAndSaveIntoDatabase(sqlConnectionString, tweets_en);
             //TextMining.GetHashtagsAndSaveIntoDatabase(sqlConnectionString, tweets_en);
             //TextMining.GetAccountsAndSaveIntoDatabase(sqlConnectionString, tweets_en);
-            TextMining.GetTheStopWordsFromFileAndLoadIntoDatabase(stopWordsFilePath, sqlConnectionString);
+
+            //TextMining.GetTheStopWordsFromFileAndLoadIntoDatabase(stopWordsFilePath, sqlConnectionString);
+
+            TextMining.Tokenize1GramAndSaveIntoDatabase(sqlConnectionString, tweets_en, false);
+            TextMining.Tokenize1GramAndSaveIntoDatabase(sqlConnectionString, tweets_en, true);
+
+
 
             Console.WriteLine("done");
             Console.ReadKey();
