@@ -12,6 +12,8 @@ namespace SampleApplication
     {
         static void Main(string[] args)
         {
+
+
             string directory = @"C:\Users\sldr01\Desktop\FILES\posts\pl_microsoft_ignite_summary";
             string sqlConnectionString = @"Data Source=localhost\sql2016; Initial Catalog=TwitterAnalysis; Integrated Security=SSPI;";
             string stopWordsFilePath = @"C:\SLDR\seequality\seequality_twitter_analysis\seequality_twitter_analysis\EnglishStopWords.txt";
@@ -29,6 +31,7 @@ namespace SampleApplication
             //TextMining.MineTweetHashtagAndSaveIntoDatabase(sqlConnectionString, tweets_en, "msignite");
             //TextMining.MineTweetAccountsAndSaveIntoDatabase(sqlConnectionString, tweets_en);
             TextMining.MineTokenizeTweet1Gram(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
+            
 
             Console.WriteLine("done");
             Console.ReadKey();

@@ -10,9 +10,14 @@ namespace Libraries.Classes
     {
         public int TweetID { get; set; }
         public string Token { get; set; }
+        public string TokenRootWord { get; set; }
         public bool IsEnglishWord { get; set; }
         public bool IsStopWord { get; set; }
-        public bool IsNotEnglishWordAndStopWord { get; set; }
+        public bool IsNotEnglishWordAndNotStopWord { get; set; }
+        public bool IsHashtag { get; set; }
+        public bool IsAccountName { get; set; }
+        public bool IsNumber { get; set; }
+        public bool IsWebsiteUrl { get; set; }
 
     }
 }

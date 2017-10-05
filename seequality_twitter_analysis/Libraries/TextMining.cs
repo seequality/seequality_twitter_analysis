@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace Libraries
 {
     public static class TextMining
@@ -217,6 +218,7 @@ namespace Libraries
             string TextMiningMethod = "MineTokenizeTweet1Gram";
 
             List<tmToken1Gram> textMiningResults = new List<tmToken1Gram>();
+            Iveonik.Stemmers.EnglishStemmer englishStemmer = new Iveonik.Stemmers.EnglishStemmer();
 
             foreach (var tweet in tweets)
             {
@@ -247,11 +249,48 @@ namespace Libraries
 
                     if (tmRemoveNonEnglishWordsAndStopWords(word, englishWordDictionaryPath, stopWordsFilePath).Length > 0)
                     {
-                        result.IsNotEnglishWordAndStopWord = true;
+                        result.IsNotEnglishWordAndNotStopWord = true;
                     }
                     else
                     {
-                        result.IsNotEnglishWordAndStopWord = false;
+                        result.IsNotEnglishWordAndNotStopWord = false;
+                    }
+
+                    result.IsNumber = tmCheckIfNumber(word);
+
+                    if (word.StartsWith("@"))
+                    {
+                        result.IsAccountName = true;
+                    }
+                    else
+                    {
+                        result.IsAccountName = false;
+                    }
+
+                    if (word.StartsWith("#"))
+                    {
+                        result.IsHashtag = true;
+                    }
+                    else
+                    {
+                        result.IsHashtag = false;
+                    }
+
+                    //Uri uriResult;
+                    //result.IsWebsiteUrl = Uri.TryCreate(word, UriKind.Absolute, out uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+
+                    if (word.StartsWith("www") || word.StartsWith("http") || word.StartsWith("https"))
+                    {
+                        result.IsWebsiteUrl = true;
+                    }
+                    else
+                    {
+                        result.IsWebsiteUrl = false;
+                    }
+
+                    if (result.IsEnglishWord == true && result.IsStopWord == false)
+                    {
+                        result.TokenRootWord = englishStemmer.Stem(word);
                     }
 
                     textMiningResults.Add(result);
@@ -280,9 +319,14 @@ namespace Libraries
 
                     cmd.Parameters.Add("@TweetID", SqlDbType.Int).Value = result.TweetID;
                     cmd.Parameters.Add("@Token", SqlDbType.NVarChar, 500).Value = result.Token;
+                    cmd.Parameters.Add("@TokenRootWord", SqlDbType.NVarChar, 500).Value = result.TokenRootWord;
                     cmd.Parameters.Add("@IsEnglishWord", SqlDbType.Bit).Value = result.IsEnglishWord;
                     cmd.Parameters.Add("@IsStopWord", SqlDbType.Bit).Value = result.IsStopWord;
-                    cmd.Parameters.Add("@IsNotEnglishWordAndStopWord", SqlDbType.Bit).Value = result.IsNotEnglishWordAndStopWord;
+                    cmd.Parameters.Add("@IsNotEnglishWordAndNotStopWord", SqlDbType.Bit).Value = result.IsNotEnglishWordAndNotStopWord;
+                    cmd.Parameters.Add("@IsHashtag", SqlDbType.Bit).Value = result.IsHashtag;
+                    cmd.Parameters.Add("@IsAccountName", SqlDbType.Bit).Value = result.IsAccountName;
+                    cmd.Parameters.Add("@IsNumber", SqlDbType.Bit).Value = result.IsNumber;
+                    cmd.Parameters.Add("@IsWebsiteUrl", SqlDbType.Bit).Value = result.IsWebsiteUrl;
 
                     try
                     {
@@ -310,7 +354,7 @@ namespace Libraries
                     sb.Append(c);
                 }
             }
-            return sb.ToString().Replace("  ","").Replace("   ","").Trim().ToLower();
+            return sb.ToString().Replace("  ","").Replace("   ","").Replace(" @ ","").Replace(" # ","").Trim().ToLower();
         }
 
         public static string tmRemoveNonEnglishWords(string str, string englishWordDictionaryPath)
@@ -360,6 +404,22 @@ namespace Libraries
             }
 
             return output.ToString().Trim().ToLower();
+        }
+
+        public static bool tmCheckIfNumber(string str)
+        {
+            bool isNumber = false;
+
+            int intVariable = 0;
+            decimal decimalVariable = 0;
+
+            if (int.TryParse(str, out intVariable) || decimal.TryParse(str, out decimalVariable))
+            {
+                isNumber = true;
+            }
+
+            return isNumber;
+
         }
 
     }

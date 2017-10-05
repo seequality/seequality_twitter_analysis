@@ -1,6 +1,7 @@
 ﻿
 
-CREATE PROCEDURE dbo.sp_CleanTables
+
+CREATE PROCEDURE [dbo].[sp_CleanTables]
 (
 	@CleanSource BIT
 )
@@ -21,5 +22,6 @@ TRUNCATE TABLE dbo.[StopWords]
 TRUNCATE TABLE [TextMining].[Hashtags]
 TRUNCATE TABLE [TextMining].[Users]
 TRUNCATE TABLE [TextMining].[Tweet]
+TRUNCATE TABLE TextMining.Token1Gram
 
 END
