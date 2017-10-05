@@ -21,14 +21,16 @@ namespace Libraries
             string TextMiningMethod = "MineEntireTweetTextsAndSaveIntoDatabase";
 
             List<tmTweet> textMiningResults = new List<tmTweet>();
+            string englishWordsDictionary = File.ReadAllText(englishWordsDictionaryPath);
+            string englishStopWordsDictionary = File.ReadAllText(englishStopWordsDictionaryPath);
 
             foreach (var tweet in tweets)
             {
                 tmTweet textMiningResult = new tmTweet();
                 textMiningResult.TweetID = tweet.ID;
                 textMiningResult.OriginalTweetWithoutSpecialCharacters = tmRemoveSpecialCharacters(tweet.Text);
-                textMiningResult.OriginalTweetEnglishWordsOnly = tmRemoveNonEnglishWords(tweet.Text, englishWordsDictionaryPath);
-                textMiningResult.OriginalTweetEnglishWordsOnlyWithoutStopWords = tmRemoveNonEnglishWordsAndStopWords(tweet.Text, englishWordsDictionaryPath, englishStopWordsDictionaryPath) ;
+                textMiningResult.OriginalTweetEnglishWordsOnly = tmRemoveNonEnglishWords(tweet.Text, englishWordsDictionary);
+                textMiningResult.OriginalTweetEnglishWordsOnlyWithoutStopWords = tmRemoveNonEnglishWordsAndStopWords(tweet.Text, englishWordsDictionary, englishStopWordsDictionary) ;
                 textMiningResults.Add(textMiningResult);
             }
 
@@ -220,6 +222,9 @@ namespace Libraries
             List<tmToken1Gram> textMiningResults = new List<tmToken1Gram>();
             Iveonik.Stemmers.EnglishStemmer englishStemmer = new Iveonik.Stemmers.EnglishStemmer();
 
+            string englishWordDictionary = File.ReadAllText(englishWordDictionaryPath);
+            string stopWordsFile = File.ReadAllText(stopWordsFilePath);
+
             foreach (var tweet in tweets)
             {
                 var words = tmRemoveSpecialCharacters(tweet.Text).Split(' ');
@@ -229,7 +234,7 @@ namespace Libraries
                     result.TweetID = tweet.ID;
                     result.Token = word;
 
-                    if (tmRemoveEnglishStopWords(word, stopWordsFilePath).Length > 0)
+                    if (tmRemoveEnglishStopWords(word, stopWordsFile).Length > 0)
                     {
                         result.IsStopWord = true;
                     }
@@ -238,7 +243,7 @@ namespace Libraries
                         result.IsStopWord = false;
                     }
 
-                    if (tmRemoveNonEnglishWords(word, englishWordDictionaryPath).Length > 0)
+                    if (tmRemoveNonEnglishWords(word, englishWordDictionary).Length > 0)
                     {
                         result.IsEnglishWord = true;
                     }
@@ -247,7 +252,7 @@ namespace Libraries
                         result.IsEnglishWord = false;
                     }
 
-                    if (tmRemoveNonEnglishWordsAndStopWords(word, englishWordDictionaryPath, stopWordsFilePath).Length > 0)
+                    if (tmRemoveNonEnglishWordsAndStopWords(word, englishWordDictionary, stopWordsFile).Length > 0)
                     {
                         result.IsNotEnglishWordAndNotStopWord = true;
                     }
@@ -368,14 +373,14 @@ namespace Libraries
             return sb.ToString().Replace("  ","").Replace("   ","").Replace(" @ ","").Replace(" # ","").Trim().ToLower();
         }
 
-        public static string tmRemoveNonEnglishWords(string str, string englishWordDictionaryPath)
+        public static string tmRemoveNonEnglishWords(string str, string englishWordDictionary)
         {
             string _str = tmRemoveSpecialCharacters(str);
             StringBuilder output = new StringBuilder();
 
             foreach (var word in _str.Split(' '))
             {
-                if (File.ReadAllText(englishWordDictionaryPath).Contains(word))
+                if (englishWordDictionary.Contains(word))
                 {
                     output.Append(word + " ");
                 }
@@ -384,14 +389,14 @@ namespace Libraries
             return output.ToString().Trim().ToLower();
         }
 
-        public static string tmRemoveEnglishStopWords(string str, string englishStopWordsDictionaryPath)
+        public static string tmRemoveEnglishStopWords(string str, string englishStopWordsDictionary)
         {
             string _str = tmRemoveSpecialCharacters(str);
             StringBuilder output = new StringBuilder();
 
             foreach (var word in _str.Split(' '))
             {
-                if (File.ReadAllText(englishStopWordsDictionaryPath).Contains(word))
+                if (englishStopWordsDictionary.Contains(word))
                 {
                     output.Append(word + " ");
                 }
@@ -401,14 +406,14 @@ namespace Libraries
             return output.ToString().Trim().ToLower();
         }
 
-        public static string tmRemoveNonEnglishWordsAndStopWords(string str, string englishWordsDictionaryPath, string englishStopWordsDictionaryPath)
+        public static string tmRemoveNonEnglishWordsAndStopWords(string str, string englishWordsDictionary, string englishStopWordsDictionary)
         {
             string _str = tmRemoveSpecialCharacters(str);
             StringBuilder output = new StringBuilder();
 
             foreach (var word in _str.Split(' '))
             {
-                if (File.ReadAllText(englishWordsDictionaryPath).Contains(word) && (!File.ReadAllText(englishStopWordsDictionaryPath).Contains(word)))
+                if (englishWordsDictionary.Contains(word) && (!englishStopWordsDictionary.Contains(word)))
                 {
                     output.Append(word + " ");
                 }

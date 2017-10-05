@@ -12,7 +12,9 @@ namespace SampleApplication
     {
         static void Main(string[] args)
         {
-
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            // the code that you want to measure comes here
+            
 
             string directory = @"C:\Users\sldr01\Desktop\FILES\posts\pl_microsoft_ignite_summary";
             string sqlConnectionString = @"Data Source=localhost\sql2016; Initial Catalog=TwitterAnalysis; Integrated Security=SSPI;";
@@ -31,7 +33,12 @@ namespace SampleApplication
             //TextMining.MineTweetHashtagAndSaveIntoDatabase(sqlConnectionString, tweets_en, "msignite");
             //TextMining.MineTweetAccountsAndSaveIntoDatabase(sqlConnectionString, tweets_en);
             TextMining.MineTokenizeTweet1Gram(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
-            
+
+
+
+            watch.Stop();
+            var elapsedMs = watch.ElapsedMilliseconds;
+            Console.WriteLine(elapsedMs.ToString());
 
             Console.WriteLine("done");
             Console.ReadKey();
