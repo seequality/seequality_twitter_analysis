@@ -25,9 +25,10 @@ namespace SampleApplication
 
 
             HelperMethods.CleanDatabase(sqlConnectionString, false);
-            TextMining.MineEntireTweetTextsAndSaveIntoDatabase(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
-            TextMining.MineTweetHashtagAndSaveIntoDatabase(sqlConnectionString, tweets_en, "msignite");
-            TextMining.MineTweetAccountsAndSaveIntoDatabase(sqlConnectionString, tweets_en);
+            //TextMining.MineEntireTweetTextsAndSaveIntoDatabase(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
+            //TextMining.MineTweetHashtagAndSaveIntoDatabase(sqlConnectionString, tweets_en, "msignite");
+            //TextMining.MineTweetAccountsAndSaveIntoDatabase(sqlConnectionString, tweets_en);
+            TextMining.MineTokenizeTweet1Gram(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
 
             Console.WriteLine("done");
             Console.ReadKey();

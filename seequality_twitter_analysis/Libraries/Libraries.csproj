@@ -70,6 +70,7 @@
     <Compile Include="Classes\TextMiningResult.cs" />
     <Compile Include="Classes\tmAccount.cs" />
     <Compile Include="Classes\tmHashtag.cs" />
+    <Compile Include="Classes\tmToken1Gram.cs" />
     <Compile Include="Classes\tmTweet.cs" />
     <Compile Include="Classes\Tweet.cs" />
     <Compile Include="Classes\TweetText.cs" />

@@ -81,7 +81,7 @@ namespace Libraries
             foreach (var tweet in tweets)
             {
                 // remove all characters except # for hashtags
-                var words = tmRemoveSpecialCharacters(tweet.Text, '#').Split(' ');
+                var words = tmRemoveSpecialCharacters(tweet.Text).Split(' ');
 
                 foreach (var word in words)
                 {
@@ -153,7 +153,7 @@ namespace Libraries
             foreach (var tweet in tweets)
             {
                 // remove all characters except # for hashtags
-                var words = tmRemoveSpecialCharacters(tweet.Text, '@').Split(' ');
+                var words = tmRemoveSpecialCharacters(tweet.Text).Split(' ');
 
                 foreach (var word in words)
                 {
@@ -212,29 +212,92 @@ namespace Libraries
             }
         }
 
-        public static void Tokenize1GramAndSaveIntoDatabase(string targetSQLConnectionString, List<TweetText> tweets, bool removeSpecialCharacters)
+        public static void MineTokenizeTweet1Gram(string targetSQLConnectionString, List<TweetText> tweets, string englishWordDictionaryPath, string stopWordsFilePath)
         {
-            string TextMiningMethod = "N-gram 1 remove special characters : " + removeSpecialCharacters;
-            int TextMiningMethodID;
+            string TextMiningMethod = "MineTokenizeTweet1Gram";
 
-            List<TextMiningResult> tweetsWithoutSpecialCharacters = new List<TextMiningResult>();
-
-            TextMiningMethodID = HelperMethods.GetTextMiningMethodIDFromDatabase(targetSQLConnectionString, TextMiningMethod);
+            List<tmToken1Gram> textMiningResults = new List<tmToken1Gram>();
 
             foreach (var tweet in tweets)
             {
-                List<string> words = tmTokenize1Gram(tweet.Text, removeSpecialCharacters);
+                var words = tmRemoveSpecialCharacters(tweet.Text).Split(' ');
                 foreach (var word in words)
                 {
-                    TextMiningResult textMiningResult = new TextMiningResult();
-                    textMiningResult.TweetID = tweet.ID;
-                    textMiningResult.TextMiningMethodID = TextMiningMethodID;
-                    textMiningResult.TweetText = word;
-                    tweetsWithoutSpecialCharacters.Add(textMiningResult);
+                    tmToken1Gram result = new tmToken1Gram();
+                    result.TweetID = tweet.ID;
+                    result.Token = word;
+
+                    if (tmRemoveEnglishStopWords(word, stopWordsFilePath).Length > 0)
+                    {
+                        result.IsStopWord = true;
+                    }
+                    else
+                    {
+                        result.IsStopWord = false;
+                    }
+
+                    if (tmRemoveNonEnglishWords(word, englishWordDictionaryPath).Length > 0)
+                    {
+                        result.IsEnglishWord = true;
+                    }
+                    else
+                    {
+                        result.IsEnglishWord = false;
+                    }
+
+                    if (tmRemoveNonEnglishWordsAndStopWords(word, englishWordDictionaryPath, stopWordsFilePath).Length > 0)
+                    {
+                        result.IsNotEnglishWordAndStopWord = true;
+                    }
+                    else
+                    {
+                        result.IsNotEnglishWordAndStopWord = false;
+                    }
+
+                    textMiningResults.Add(result);
                 }
             }
 
-            //SaveTextMiningResultsToDatabase(targetSQLConnectionString, tweetsWithoutSpecialCharacters, TextMiningMethod);
+            SqlConnection conn = new SqlConnection(targetSQLConnectionString);
+            SqlCommand cmd;
+
+            try
+            {
+                conn.Open();
+            }
+            catch (Exception exc)
+            {
+                logger.Error(exc);
+            }
+
+            if (conn.State == ConnectionState.Open)
+            {
+                foreach (var result in textMiningResults)
+                {
+
+                    cmd = new SqlCommand("[sp_InsertToken1Gram]", conn);
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    cmd.Parameters.Add("@TweetID", SqlDbType.Int).Value = result.TweetID;
+                    cmd.Parameters.Add("@Token", SqlDbType.NVarChar, 500).Value = result.Token;
+                    cmd.Parameters.Add("@IsEnglishWord", SqlDbType.Bit).Value = result.IsEnglishWord;
+                    cmd.Parameters.Add("@IsStopWord", SqlDbType.Bit).Value = result.IsStopWord;
+                    cmd.Parameters.Add("@IsNotEnglishWordAndStopWord", SqlDbType.Bit).Value = result.IsNotEnglishWordAndStopWord;
+
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (Exception exc)
+                    {
+                        logger.Error(exc);
+                    }
+                }
+
+                conn.Close();
+
+                logger.Info("Text mining method " + TextMiningMethod + " done");
+            }
         }
 
         public static string tmRemoveSpecialCharacters(this string str)
@@ -242,12 +305,12 @@ namespace Libraries
             StringBuilder sb = new StringBuilder();
             foreach (char c in str)
             {
-                if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == ' ')
+                if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == ' ' || c == '@' || c == '#')
                 {
                     sb.Append(c);
                 }
             }
-            return sb.ToString().Trim().ToLower();
+            return sb.ToString().Replace("  ","").Replace("   ","").Trim().ToLower();
         }
 
         public static string tmRemoveNonEnglishWords(string str, string englishWordDictionaryPath)
@@ -258,6 +321,22 @@ namespace Libraries
             foreach (var word in _str.Split(' '))
             {
                 if (File.ReadAllText(englishWordDictionaryPath).Contains(word))
+                {
+                    output.Append(word + " ");
+                }
+            }
+
+            return output.ToString().Trim().ToLower();
+        }
+
+        public static string tmRemoveEnglishStopWords(string str, string englishStopWordsDictionaryPath)
+        {
+            string _str = tmRemoveSpecialCharacters(str);
+            StringBuilder output = new StringBuilder();
+
+            foreach (var word in _str.Split(' '))
+            {
+                if (File.ReadAllText(englishStopWordsDictionaryPath).Contains(word))
                 {
                     output.Append(word + " ");
                 }
@@ -282,37 +361,6 @@ namespace Libraries
 
             return output.ToString().Trim().ToLower();
         }
-
-        public static string tmRemoveSpecialCharacters(this string str, char exceptChar)
-        {
-            StringBuilder sb = new StringBuilder();
-            foreach (char c in str)
-            {
-                if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == ' ' || c == exceptChar)
-                {
-                    sb.Append(c);
-                }
-            }
-            return sb.ToString().Replace("  ","").Trim().ToLower();
-        }
-
-        public static List<string> tmTokenize1Gram(string str, bool removeSpecialCharacters)
-        {
-            List<string> tokens = new List<string>();
-
-            if (removeSpecialCharacters)
-            {
-                tokens = tmRemoveSpecialCharacters(str).Split(' ').ToList().Select(x=> x.Trim().ToLower()).Where(x => x.Length > 0).ToList();
-            }
-
-            else
-            {
-                tokens = str.Split(' ').ToList();
-            }
-            return tokens;
-        }
-
-   
 
     }
 }
