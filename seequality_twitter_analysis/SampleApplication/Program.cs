@@ -20,21 +20,13 @@ namespace SampleApplication
             //ParseTwitterData.ParseAllFilesFromDirectory(directory, sqlConnectionString);
 
             var tweets_en = GetTwitterData.GetTweets(sqlConnectionString, "en");
-            //TextMining.GetOriginalTweetWithoutSpecialCharactersAndSaveIntoDatabase(sqlConnectionString, tweets_en);
-            //TextMining.GetHashtagsAndSaveIntoDatabase(sqlConnectionString, tweets_en);
-            //TextMining.GetAccountsAndSaveIntoDatabase(sqlConnectionString, tweets_en);
-
-            ////TextMining.GetTheStopWordsFromFileAndLoadIntoDatabase(stopWordsFilePath, sqlConnectionString);
-
-            //TextMining.Tokenize1GramAndSaveIntoDatabase(sqlConnectionString, tweets_en, false);
-            //TextMining.Tokenize1GramAndSaveIntoDatabase(sqlConnectionString, tweets_en, true);
-
-
+         
+      
 
 
             HelperMethods.CleanDatabase(sqlConnectionString, false);
-            //TextMining.MineEntireTweetTextsAndSaveIntoDatabase(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
-            //TextMining.MineTweetHashtagAndSaveIntoDatabase(sqlConnectionString, tweets_en, "msignite");
+            TextMining.MineEntireTweetTextsAndSaveIntoDatabase(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
+            TextMining.MineTweetHashtagAndSaveIntoDatabase(sqlConnectionString, tweets_en, "msignite");
             TextMining.MineTweetAccountsAndSaveIntoDatabase(sqlConnectionString, tweets_en);
 
             Console.WriteLine("done");
