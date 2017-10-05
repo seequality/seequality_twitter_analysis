@@ -88,6 +88,8 @@
     <Build Include="TextMining\Tables\Accounts.sql" />
     <Build Include="dbo\Stored Procedures\sp_InsertTMHashtag.sql" />
     <Build Include="dbo\Stored Procedures\sp_InsertTMAccounts.sql" />
+    <Build Include="TextMining\Tables\Token1Gram.sql" />
+    <Build Include="dbo\Stored Procedures\sp_InsertToken1Gram.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment1.sql" />

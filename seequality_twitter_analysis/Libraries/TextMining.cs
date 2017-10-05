@@ -290,7 +290,18 @@ namespace Libraries
 
                     if (result.IsEnglishWord == true && result.IsStopWord == false)
                     {
-                        result.TokenRootWord = englishStemmer.Stem(word);
+                        try
+                        {
+                            result.TokenRootWord = englishStemmer.Stem(word);
+                        }
+                        catch { }
+                        finally
+                        {
+                            if (!(result.TokenRootWord.Length > 0))
+                            {
+                                result.TokenRootWord = "N/A";
+                            }
+                        }
                     }
 
                     textMiningResults.Add(result);

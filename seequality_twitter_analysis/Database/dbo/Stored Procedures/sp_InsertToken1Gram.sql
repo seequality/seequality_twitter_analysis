@@ -1,18 +1,19 @@
 ﻿
 
 
+
 CREATE PROCEDURE [dbo].[sp_InsertToken1Gram]
 (
 	@TweetID INT,
-	@Token NVARCHAR(500),
-	@TokenRootWord nvarchar(500),
-	@IsEnglishWord BIT,
-	@IsStopWord BIT,
-	@IsNotEnglishWordAndNotStopWord BIT,
-	@IsHashtag BIT,
-	@IsAccountName BIT,
-	@IsNumber BIT,
-	@IsWebsiteUrl BIT
+	@Token NVARCHAR(500) = NULL,
+	@TokenRootWord NVARCHAR(500) = NULL,
+	@IsEnglishWord BIT = NULL,
+	@IsStopWord BIT = NULL,
+	@IsNotEnglishWordAndNotStopWord BIT = NULL,
+	@IsHashtag BIT = NULL,
+	@IsAccountName BIT = NULL,
+	@IsNumber BIT = NULL,
+	@IsWebsiteUrl BIT = NULL
 )
 AS
 INSERT INTO TextMining.Token1Gram

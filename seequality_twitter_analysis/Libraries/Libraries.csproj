@@ -52,16 +52,8 @@
       <HintPath>..\packages\HtmlAgilityPack.1.5.5\lib\Net45\HtmlAgilityPack.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="LemmaSharp, Version=4.12.5287.29676, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\LemmaGenerator.1.1.0\lib\net20\LemmaSharp.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\packages\NLog.4.4.12\lib\net45\NLog.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Shaman.Stemming, Version=1.0.0.0, Culture=neutral, PublicKeyToken=050d9c722ab1e9c9, processorArchitecture=MSIL">
-      <HintPath>..\packages\Shaman.Stemming.1.0.1.3\lib\net45\Shaman.Stemming.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Shaman.ValueString, Version=1.0.0.0, Culture=neutral, PublicKeyToken=18bc04d2eb1e1518, processorArchitecture=MSIL">
@@ -98,8 +90,6 @@
     <Compile Include="TwitterData.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Classes\7zip\Compress\LzmaAlone\LzmaAlone.csproj" />
-    <Content Include="Classes\7zip\Compress\LzmaAlone\LzmaAlone.sln" />
     <Content Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
