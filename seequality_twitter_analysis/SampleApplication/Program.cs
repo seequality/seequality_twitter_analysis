@@ -33,8 +33,9 @@ namespace SampleApplication
 
 
             HelperMethods.CleanDatabase(sqlConnectionString, false);
-            TextMining.MineEntireTweetTextsAndSaveIntoDatabase(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
-
+            //TextMining.MineEntireTweetTextsAndSaveIntoDatabase(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
+            //TextMining.MineTweetHashtagAndSaveIntoDatabase(sqlConnectionString, tweets_en, "msignite");
+            TextMining.MineTweetAccountsAndSaveIntoDatabase(sqlConnectionString, tweets_en);
 
             Console.WriteLine("done");
             Console.ReadKey();

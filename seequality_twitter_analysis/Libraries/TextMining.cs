@@ -72,47 +72,40 @@ namespace Libraries
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        public static void GetTheStopWordsFromFileAndLoadIntoDatabase(string stopWordsFileName, string targetSQLConnectionString)
+        public static void MineTweetHashtagAndSaveIntoDatabase(string targetSQLConnectionString, List<TweetText> tweets, string IsOnTheWhiteList)
         {
+            string TextMiningMethod = "MineTweetHashtagAndSaveIntoDatabase";
+
+            List<tmHashtag> textMiningResults = new List<tmHashtag>();
+
+            foreach (var tweet in tweets)
+            {
+                // remove all characters except # for hashtags
+                var words = tmRemoveSpecialCharacters(tweet.Text, '#').Split(' ');
+
+                foreach (var word in words)
+                {
+                    // get only hashtags
+                    if (word.StartsWith("#"))
+                    {
+                        string hashtag = word.Trim().ToLower();
+                        if (hashtag.Length > 1)
+                        {
+                            bool isOnTheWhiteList = false;
+                            if (hashtag == IsOnTheWhiteList) isOnTheWhiteList = true;
+
+                            tmHashtag textMiningResult = new tmHashtag();
+                            textMiningResult.TweetID = tweet.ID;
+                            textMiningResult.Hashtag = hashtag;
+                            textMiningResult.IsOnTheWhiteList = isOnTheWhiteList;
+                            textMiningResults.Add(textMiningResult);
+                        }
+                    }
+                }
+            }
+
             SqlConnection conn = new SqlConnection(targetSQLConnectionString);
             SqlCommand cmd;
-
-            List<string> stopWords = File.ReadAllLines(stopWordsFileName).ToList();
 
             try
             {
@@ -125,14 +118,15 @@ namespace Libraries
 
             if (conn.State == ConnectionState.Open)
             {
-
-                foreach (var stopWord in stopWords)
+                foreach (var result in textMiningResults)
                 {
 
-                    cmd = new SqlCommand("[sp_InsertStopWord]", conn);
+                    cmd = new SqlCommand("[sp_InsertTMHashtag]", conn);
                     cmd.CommandType = CommandType.StoredProcedure;
 
-                    cmd.Parameters.Add("@StopWord", SqlDbType.VarChar, 50).Value = stopWord;
+                    cmd.Parameters.Add("@TweetID", SqlDbType.Int).Value = result.TweetID;
+                    cmd.Parameters.Add("@Hashtag", SqlDbType.NVarChar, 500).Value = result.Hashtag;
+                    cmd.Parameters.Add("@IsOnTheWhiteList", SqlDbType.Bit).Value = result.IsOnTheWhiteList;
 
                     try
                     {
@@ -146,30 +140,173 @@ namespace Libraries
 
                 conn.Close();
 
-                logger.Info("Text mining method stopwords done");
+                logger.Info("Text mining method " + TextMiningMethod + " done");
             }
         }
 
-        public static void GetOriginalTweetWithoutSpecialCharactersAndSaveIntoDatabase(string targetSQLConnectionString, List<TweetText> tweets)
+        public static void MineTweetAccountsAndSaveIntoDatabase(string targetSQLConnectionString, List<TweetText> tweets)
         {
-            string TextMiningMethod = "Original tweet without special characters";
-            int TextMiningMethodID;
+            string TextMiningMethod = "MineTweetHashtagAndSaveIntoDatabase";
 
-            List<TextMiningResult> tweetsWithoutSpecialCharacters = new List<TextMiningResult>();
-
-            TextMiningMethodID = HelperMethods.GetTextMiningMethodIDFromDatabase(targetSQLConnectionString, TextMiningMethod);
+            List<tmAccount> textMiningResults = new List<tmAccount>();
 
             foreach (var tweet in tweets)
             {
-                TextMiningResult textMiningResult = new TextMiningResult();
-                textMiningResult.TweetID = tweet.ID;
-                textMiningResult.TextMiningMethodID = TextMiningMethodID;
-                textMiningResult.TweetText = tmRemoveSpecialCharacters(tweet.Text).Trim().ToLower();
-                tweetsWithoutSpecialCharacters.Add(textMiningResult);
+                // remove all characters except # for hashtags
+                var words = tmRemoveSpecialCharacters(tweet.Text, '@').Split(' ');
+
+                foreach (var word in words)
+                {
+                    // get only hashtags
+                    if (word.StartsWith("@"))
+                    {
+                        string account = word.Trim().ToLower();
+                        if (account.Length > 1)
+                        {
+
+                            tmAccount textMiningResult = new tmAccount();
+                            textMiningResult.TweetID = tweet.ID;
+                            textMiningResult.Account = account;
+                            textMiningResults.Add(textMiningResult);
+                        }
+                    }
+                }
             }
 
-            SaveTextMiningResultsToDatabase(targetSQLConnectionString, tweetsWithoutSpecialCharacters, TextMiningMethod);
+            SqlConnection conn = new SqlConnection(targetSQLConnectionString);
+            SqlCommand cmd;
+
+            try
+            {
+                conn.Open();
+            }
+            catch (Exception exc)
+            {
+                logger.Error(exc);
+            }
+
+            if (conn.State == ConnectionState.Open)
+            {
+                foreach (var result in textMiningResults)
+                {
+
+                    cmd = new SqlCommand("[sp_InsertTMAccounts]", conn);
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    cmd.Parameters.Add("@TweetID", SqlDbType.Int).Value = result.TweetID;
+                    cmd.Parameters.Add("@Account", SqlDbType.NVarChar, 500).Value = result.Account;
+
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (Exception exc)
+                    {
+                        logger.Error(exc);
+                    }
+                }
+
+                conn.Close();
+
+                logger.Info("Text mining method " + TextMiningMethod + " done");
+            }
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //public static void GetTheStopWordsFromFileAndLoadIntoDatabase(string stopWordsFileName, string targetSQLConnectionString)
+        //{
+        //    SqlConnection conn = new SqlConnection(targetSQLConnectionString);
+        //    SqlCommand cmd;
+
+        //    List<string> stopWords = File.ReadAllLines(stopWordsFileName).ToList();
+
+        //    try
+        //    {
+        //        conn.Open();
+        //    }
+        //    catch (Exception exc)
+        //    {
+        //        logger.Error(exc);
+        //    }
+
+        //    if (conn.State == ConnectionState.Open)
+        //    {
+
+        //        foreach (var stopWord in stopWords)
+        //        {
+
+        //            cmd = new SqlCommand("[sp_InsertStopWord]", conn);
+        //            cmd.CommandType = CommandType.StoredProcedure;
+
+        //            cmd.Parameters.Add("@StopWord", SqlDbType.VarChar, 50).Value = stopWord;
+
+        //            try
+        //            {
+        //                cmd.ExecuteNonQuery();
+        //            }
+        //            catch (Exception exc)
+        //            {
+        //                logger.Error(exc);
+        //            }
+        //        }
+
+        //        conn.Close();
+
+        //        logger.Info("Text mining method stopwords done");
+        //    }
+        //}
+
+        //public static void GetOriginalTweetWithoutSpecialCharactersAndSaveIntoDatabase(string targetSQLConnectionString, List<TweetText> tweets)
+        //{
+        //    string TextMiningMethod = "Original tweet without special characters";
+        //    int TextMiningMethodID;
+
+        //    List<TextMiningResult> tweetsWithoutSpecialCharacters = new List<TextMiningResult>();
+
+        //    TextMiningMethodID = HelperMethods.GetTextMiningMethodIDFromDatabase(targetSQLConnectionString, TextMiningMethod);
+
+        //    foreach (var tweet in tweets)
+        //    {
+        //        TextMiningResult textMiningResult = new TextMiningResult();
+        //        textMiningResult.TweetID = tweet.ID;
+        //        textMiningResult.TextMiningMethodID = TextMiningMethodID;
+        //        textMiningResult.TweetText = tmRemoveSpecialCharacters(tweet.Text).Trim().ToLower();
+        //        tweetsWithoutSpecialCharacters.Add(textMiningResult);
+        //    }
+
+        //    SaveTextMiningResultsToDatabase(targetSQLConnectionString, tweetsWithoutSpecialCharacters, TextMiningMethod);
+        //}
 
         public static void Tokenize1GramAndSaveIntoDatabase(string targetSQLConnectionString, List<TweetText> tweets, bool removeSpecialCharacters)
         {
@@ -193,120 +330,120 @@ namespace Libraries
                 }
             }
 
-            SaveTextMiningResultsToDatabase(targetSQLConnectionString, tweetsWithoutSpecialCharacters, TextMiningMethod);
+            //SaveTextMiningResultsToDatabase(targetSQLConnectionString, tweetsWithoutSpecialCharacters, TextMiningMethod);
         }
 
-        public static void GetHashtagsAndSaveIntoDatabase(string targetSQLConnectionString, List<TweetText> tweets)
-        {
-            string TextMiningMethod = "Hashtag";
-            int TextMiningMethodID;
+        //public static void GetHashtagsAndSaveIntoDatabase(string targetSQLConnectionString, List<TweetText> tweets)
+        //{
+        //    string TextMiningMethod = "Hashtag";
+        //    int TextMiningMethodID;
 
-            List<TextMiningResult> tweetsWithoutSpecialCharacters = new List<TextMiningResult>();
+        //    List<TextMiningResult> tweetsWithoutSpecialCharacters = new List<TextMiningResult>();
 
-            TextMiningMethodID = HelperMethods.GetTextMiningMethodIDFromDatabase(targetSQLConnectionString, TextMiningMethod);
+        //    TextMiningMethodID = HelperMethods.GetTextMiningMethodIDFromDatabase(targetSQLConnectionString, TextMiningMethod);
 
-            foreach (var tweet in tweets)
-            {
-                // remove all characters except # for hashtags
-                var words = tmRemoveSpecialCharacters(tweet.Text, '#').Split(' ');
+        //    foreach (var tweet in tweets)
+        //    {
+        //        // remove all characters except # for hashtags
+        //        var words = tmRemoveSpecialCharacters(tweet.Text, '#').Split(' ');
 
-                foreach (var word in words)
-                {
-                    // get only hashtags
-                    if (word.StartsWith("#"))
-                    {
-                        string hashtag = word.Trim().ToLower();
-                        if (hashtag.Length > 1)
-                        {
-                            TextMiningResult textMiningResult = new TextMiningResult();
-                            textMiningResult.TweetID = tweet.ID;
-                            textMiningResult.TextMiningMethodID = TextMiningMethodID;
-                            textMiningResult.TweetText = hashtag;
-                            tweetsWithoutSpecialCharacters.Add(textMiningResult);
-                        }
-                    }
-                }
-            }
+        //        foreach (var word in words)
+        //        {
+        //            // get only hashtags
+        //            if (word.StartsWith("#"))
+        //            {
+        //                string hashtag = word.Trim().ToLower();
+        //                if (hashtag.Length > 1)
+        //                {
+        //                    TextMiningResult textMiningResult = new TextMiningResult();
+        //                    textMiningResult.TweetID = tweet.ID;
+        //                    textMiningResult.TextMiningMethodID = TextMiningMethodID;
+        //                    textMiningResult.TweetText = hashtag;
+        //                    tweetsWithoutSpecialCharacters.Add(textMiningResult);
+        //                }
+        //            }
+        //        }
+        //    }
 
-            SaveTextMiningResultsToDatabase(targetSQLConnectionString, tweetsWithoutSpecialCharacters, TextMiningMethod);
-        }
+        //    SaveTextMiningResultsToDatabase(targetSQLConnectionString, tweetsWithoutSpecialCharacters, TextMiningMethod);
+        //}
 
-        public static void GetAccountsAndSaveIntoDatabase(string targetSQLConnectionString, List<TweetText> tweets)
-        {
-            string TextMiningMethod = "Twitter accounts";
-            int TextMiningMethodID;
+        //public static void GetAccountsAndSaveIntoDatabase(string targetSQLConnectionString, List<TweetText> tweets)
+        //{
+        //    string TextMiningMethod = "Twitter accounts";
+        //    int TextMiningMethodID;
 
-            List<TextMiningResult> tweetsWithoutSpecialCharacters = new List<TextMiningResult>();
+        //    List<TextMiningResult> tweetsWithoutSpecialCharacters = new List<TextMiningResult>();
 
-            TextMiningMethodID = HelperMethods.GetTextMiningMethodIDFromDatabase(targetSQLConnectionString, TextMiningMethod);
+        //    TextMiningMethodID = HelperMethods.GetTextMiningMethodIDFromDatabase(targetSQLConnectionString, TextMiningMethod);
 
-            foreach (var tweet in tweets)
-            {
-                // remove all characters except @ for accounts
-                var words = tmRemoveSpecialCharacters(tweet.Text, '@').Split(' ');
+        //    foreach (var tweet in tweets)
+        //    {
+        //        // remove all characters except @ for accounts
+        //        var words = tmRemoveSpecialCharacters(tweet.Text, '@').Split(' ');
 
-                foreach (var word in words)
-                {
-                    // get only accounts
-                    if (word.StartsWith("@"))
-                    {
-                        string accountName = word.Trim().ToLower();
-                        if (accountName.Length > 1)
-                        {
-                            TextMiningResult textMiningResult = new TextMiningResult();
-                            textMiningResult.TweetID = tweet.ID;
-                            textMiningResult.TextMiningMethodID = TextMiningMethodID;
-                            textMiningResult.TweetText = accountName;
-                            tweetsWithoutSpecialCharacters.Add(textMiningResult);
-                        }
-                    }
-                }
-            }
+        //        foreach (var word in words)
+        //        {
+        //            // get only accounts
+        //            if (word.StartsWith("@"))
+        //            {
+        //                string accountName = word.Trim().ToLower();
+        //                if (accountName.Length > 1)
+        //                {
+        //                    TextMiningResult textMiningResult = new TextMiningResult();
+        //                    textMiningResult.TweetID = tweet.ID;
+        //                    textMiningResult.TextMiningMethodID = TextMiningMethodID;
+        //                    textMiningResult.TweetText = accountName;
+        //                    tweetsWithoutSpecialCharacters.Add(textMiningResult);
+        //                }
+        //            }
+        //        }
+        //    }
 
-            SaveTextMiningResultsToDatabase(targetSQLConnectionString, tweetsWithoutSpecialCharacters, TextMiningMethod);
-        }
+        //    //SaveTextMiningResultsToDatabase(targetSQLConnectionString, tweetsWithoutSpecialCharacters, TextMiningMethod);
+        //}
 
-        public static void SaveTextMiningResultsToDatabase(string targetSQLConnectionString, List<TextMiningResult> results, string TextMiningMethod)
-        {
-            SqlConnection conn = new SqlConnection(targetSQLConnectionString);
-            SqlCommand cmd;
+        //public static void SaveTextMiningResultsToDatabase(string targetSQLConnectionString, List<TextMiningResult> results, string TextMiningMethod)
+        //{
+        //    SqlConnection conn = new SqlConnection(targetSQLConnectionString);
+        //    SqlCommand cmd;
 
-            try
-            {
-                conn.Open();
-            }
-            catch (Exception exc)
-            {
-                logger.Error(exc);
-            }
+        //    try
+        //    {
+        //        conn.Open();
+        //    }
+        //    catch (Exception exc)
+        //    {
+        //        logger.Error(exc);
+        //    }
 
-            if (conn.State == ConnectionState.Open)
-            {
-                foreach (var result in results)
-                {
+        //    if (conn.State == ConnectionState.Open)
+        //    {
+        //        foreach (var result in results)
+        //        {
 
-                    cmd = new SqlCommand("[sp_InsertTextMiningResult]", conn);
-                    cmd.CommandType = CommandType.StoredProcedure;
+        //            cmd = new SqlCommand("[sp_InsertTextMiningResult]", conn);
+        //            cmd.CommandType = CommandType.StoredProcedure;
 
-                    cmd.Parameters.Add("@TweetID", SqlDbType.Int).Value = result.TweetID;
-                    cmd.Parameters.Add("@TextMiningMethodID", SqlDbType.SmallInt).Value = result.TextMiningMethodID;
-                    cmd.Parameters.Add("@TweetText", SqlDbType.NVarChar, 500).Value = result.TweetText;
+        //            cmd.Parameters.Add("@TweetID", SqlDbType.Int).Value = result.TweetID;
+        //            cmd.Parameters.Add("@TextMiningMethodID", SqlDbType.SmallInt).Value = result.TextMiningMethodID;
+        //            cmd.Parameters.Add("@TweetText", SqlDbType.NVarChar, 500).Value = result.TweetText;
 
-                    try
-                    {
-                        cmd.ExecuteNonQuery();
-                    }
-                    catch (Exception exc)
-                    {
-                        logger.Error(exc);
-                    }
-                }
+        //            try
+        //            {
+        //                cmd.ExecuteNonQuery();
+        //            }
+        //            catch (Exception exc)
+        //            {
+        //                logger.Error(exc);
+        //            }
+        //        }
 
-                conn.Close();
+        //        conn.Close();
 
-                logger.Info("Text mining method " + TextMiningMethod + " done");
-            }
-        }
+        //        logger.Info("Text mining method " + TextMiningMethod + " done");
+        //    }
+        //}
 
         public static string tmRemoveSpecialCharacters(this string str)
         {
