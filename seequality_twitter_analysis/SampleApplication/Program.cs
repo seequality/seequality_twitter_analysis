@@ -23,22 +23,22 @@ namespace SampleApplication
 
             //ParseTwitterData.ParseAllFilesFromDirectory(directory, sqlConnectionString);
 
+
+
+
+
             var tweets_en = GetTwitterData.GetTweets(sqlConnectionString, "en");
-         
-      
-
-
             HelperMethods.CleanDatabase(sqlConnectionString, false);
-            //TextMining.MineEntireTweetTextsAndSaveIntoDatabase(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
-            //TextMining.MineTweetHashtagAndSaveIntoDatabase(sqlConnectionString, tweets_en, "msignite");
-            //TextMining.MineTweetAccountsAndSaveIntoDatabase(sqlConnectionString, tweets_en);
+            TextMining.MineEntireTweetTextsAndSaveIntoDatabase(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
+            TextMining.MineTweetHashtagAndSaveIntoDatabase(sqlConnectionString, tweets_en, "msignite");
+            TextMining.MineTweetAccountsAndSaveIntoDatabase(sqlConnectionString, tweets_en);
             TextMining.MineTokenizeTweet1Gram(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
 
 
 
             watch.Stop();
             var elapsedMs = watch.ElapsedMilliseconds;
-            Console.WriteLine(elapsedMs.ToString());
+            Console.WriteLine("Elapsed miliseconds: " + elapsedMs.ToString());
 
             Console.WriteLine("done");
             Console.ReadKey();
