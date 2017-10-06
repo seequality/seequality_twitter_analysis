@@ -3,6 +3,7 @@
 
 
 
+
 CREATE PROCEDURE [dbo].[sp_CleanTables]
 (
 	@CleanSource BIT
@@ -22,5 +23,6 @@ IF @CleanSource = 1
 	TRUNCATE TABLE [TextMining].[Accounts]
 	TRUNCATE TABLE [TextMining].[Tweet]
 	TRUNCATE TABLE [TextMining].[Token1Gram]
+	TRUNCATE TABLE [TextMining].[Token2Gram]
 
 END

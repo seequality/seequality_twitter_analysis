@@ -78,6 +78,7 @@
     <Compile Include="Classes\TextMiningResult.cs" />
     <Compile Include="Classes\tmAccount.cs" />
     <Compile Include="Classes\tmHashtag.cs" />
+    <Compile Include="Classes\tmToken2Gram.cs" />
     <Compile Include="Classes\tmToken1Gram.cs" />
     <Compile Include="Classes\tmTweet.cs" />
     <Compile Include="Classes\Tweet.cs" />
@@ -87,7 +88,6 @@
     <Compile Include="ParseTwitterData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TextMining.cs" />
-    <Compile Include="TwitterData.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="NLog.config">

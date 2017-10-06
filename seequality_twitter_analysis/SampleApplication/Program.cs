@@ -28,11 +28,12 @@ namespace SampleApplication
 
 
             var tweets_en = GetTwitterData.GetTweets(sqlConnectionString, "en");
-            HelperMethods.CleanDatabase(sqlConnectionString, false);
-            TextMining.MineEntireTweetTextsAndSaveIntoDatabase(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
-            TextMining.MineTweetHashtagAndSaveIntoDatabase(sqlConnectionString, tweets_en, "msignite");
-            TextMining.MineTweetAccountsAndSaveIntoDatabase(sqlConnectionString, tweets_en);
-            TextMining.MineTokenizeTweet1Gram(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
+            //HelperMethods.CleanDatabase(sqlConnectionString, false);
+            //TextMining.MineEntireTweetTextsAndSaveIntoDatabase(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
+            //TextMining.MineTweetHashtagAndSaveIntoDatabase(sqlConnectionString, tweets_en, "msignite");
+            //TextMining.MineTweetAccountsAndSaveIntoDatabase(sqlConnectionString, tweets_en);
+            //TextMining.MineTokenizeTweet1Gram(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
+            TextMining.MineTokenizeTweet2Gram(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
 
 
 
