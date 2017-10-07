@@ -13,29 +13,23 @@ namespace SampleApplication
         static void Main(string[] args)
         {
             var watch = System.Diagnostics.Stopwatch.StartNew();
-            // the code that you want to measure comes here
-            
 
             string directory = @"C:\Users\sldr01\Desktop\FILES\posts\pl_microsoft_ignite_summary";
             string sqlConnectionString = @"Data Source=localhost\sql2016; Initial Catalog=TwitterAnalysis; Integrated Security=SSPI;";
             string stopWordsFilePath = @"C:\SLDR\seequality\seequality_twitter_analysis\seequality_twitter_analysis\EnglishStopWords.txt";
             string englishWordDictionaryPath = @"C:\SLDR\seequality\seequality_twitter_analysis\seequality_twitter_analysis\EnglishWords.txt";
 
-
             HelperMethods.CleanDatabase(sqlConnectionString, false);
 
-            //ParseTwitterData.ParseAllFilesFromDirectory(directory, sqlConnectionString);
+            ParseTwitterData.ParseAllFilesFromDirectory(directory, sqlConnectionString);
             var tweets_en = GetTwitterData.GetTweets(sqlConnectionString, "en");
             var tweets = GetTwitterData.GetTweets(sqlConnectionString);
-
 
             TextMining.MineEntireTweetTextsAndSaveIntoDatabase(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
             TextMining.MineTweetHashtagAndSaveIntoDatabase(sqlConnectionString, tweets, "#msignite");
             TextMining.MineTweetAccountsAndSaveIntoDatabase(sqlConnectionString, tweets);
-            //TextMining.MineTokenizeTweet1Gram(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
-            //TextMining.MineTokenizeTweet2Gram(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
-
-
+            TextMining.MineTokenizeTweet1Gram(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
+            TextMining.MineTokenizeTweet2Gram(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
 
             watch.Stop();
             var elapsedMs = watch.ElapsedMilliseconds;
