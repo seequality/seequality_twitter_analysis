@@ -21,7 +21,8 @@
     [NumberOfReplies]             INT            NULL,
     [NumberOfRetweets]            INT            NULL,
     [NumberOFFavourites]          INT            NULL,
-    [NumberOfErrorsDuringParsing] INT            NULL
+    [NumberOfErrorsDuringParsing] INT            NULL,
+    CONSTRAINT [PK_dbo_Tweet] PRIMARY KEY CLUSTERED ([TweetID] ASC)
 );
 
 
@@ -31,4 +32,12 @@
 
 
 
+
+
+
+
+GO
+CREATE NONCLUSTERED INDEX [NCI_dbo_Tweet_TweetLanguage_INCL_TweetID_TweetText]
+    ON [dbo].[Tweet]([TweetLanguage] ASC)
+    INCLUDE([TweetID], [TweetText]);
 
