@@ -24,13 +24,16 @@ namespace SampleApplication
 
             HelperMethods.CleanDatabase(sqlConnectionString, false);
 
-            ParseTwitterData.ParseAllFilesFromDirectory(directory, sqlConnectionString);
+            //ParseTwitterData.ParseAllFilesFromDirectory(directory, sqlConnectionString);
             var tweets_en = GetTwitterData.GetTweets(sqlConnectionString, "en");
-            TextMining.MineEntireTweetTextsAndSaveIntoDatabase(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
-            TextMining.MineTweetHashtagAndSaveIntoDatabase(sqlConnectionString, tweets_en, "#msignite");
-            TextMining.MineTweetAccountsAndSaveIntoDatabase(sqlConnectionString, tweets_en);
-            TextMining.MineTokenizeTweet1Gram(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
-            TextMining.MineTokenizeTweet2Gram(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
+            var tweets = GetTwitterData.GetTweets(sqlConnectionString);
+
+
+            //TextMining.MineEntireTweetTextsAndSaveIntoDatabase(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
+            TextMining.MineTweetHashtagAndSaveIntoDatabase(sqlConnectionString, tweets, "#msignite");
+            //TextMining.MineTweetAccountsAndSaveIntoDatabase(sqlConnectionString, tweets);
+            //TextMining.MineTokenizeTweet1Gram(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
+            //TextMining.MineTokenizeTweet2Gram(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
 
 
 
