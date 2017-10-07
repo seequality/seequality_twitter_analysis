@@ -15,6 +15,7 @@
     [DateTime]                    DATETIME2 (7)  NULL,
     [TweetText]                   NVARCHAR (500) NULL,
     [TweetLanguage]               VARCHAR (500)  NULL,
+    [TweetLanguageName]           VARCHAR (500)  NULL,
     [TweetMediaName]              VARCHAR (500)  NULL,
     [TweetMediaType]              VARCHAR (500)  NULL,
     [NumberOfReplies]             INT            NULL,
@@ -22,6 +23,8 @@
     [NumberOFFavourites]          INT            NULL,
     [NumberOfErrorsDuringParsing] INT            NULL
 );
+
+
 
 
 

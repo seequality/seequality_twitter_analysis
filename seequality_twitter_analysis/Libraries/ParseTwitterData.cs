@@ -27,6 +27,7 @@ namespace Libraries
             SqlConnection conn = new SqlConnection(sqlConnectionString);
             SqlCommand cmd;
             int ExecutionID = 0;
+            List<KeyValuePair<string, string>> allLanguages = HelperMethods.GetCountryCodesAndNames();
 
             #region Start execution log in database
 
@@ -344,9 +345,6 @@ namespace Libraries
                                 .Replace("   ", " ")
                                 .Replace("  ", " ")
                                 .Trim();
-
-                
-
                         }
                         catch (Exception exc)
                         {
@@ -367,6 +365,16 @@ namespace Libraries
                         {
                             iNumberOfErrorsDuringParsing++;
                             logger.Error("Error during parsing " + "TweetLanguage" + " " + exc);
+                        }
+
+                        try
+                        {
+                            currentTweet.TweetLanguageName = allLanguages.Where(x => x.Key == currentTweet.TweetLanguage).Select(x => x.Value).First().ToString();
+                        }
+                        catch (Exception exc)
+                        {
+                            iNumberOfErrorsDuringParsing++;
+                            logger.Error("Error during parsing " + "TweetLanguageName" + " " + exc);
                         }
 
                         #endregion
@@ -747,6 +755,7 @@ namespace Libraries
                         cmd.Parameters.Add("@DateTime", SqlDbType.DateTime2).Value = tweet.DateTime;
                         cmd.Parameters.Add("@TweetText", SqlDbType.NVarChar, 500).Value = tweet.TweetText;
                         cmd.Parameters.Add("@TweetLanguage", SqlDbType.VarChar, 500).Value = tweet.TweetLanguage;
+                        cmd.Parameters.Add("@TweetLanguageName", SqlDbType.VarChar, 500).Value = tweet.TweetLanguageName;
                         cmd.Parameters.Add("@TweetMediaName", SqlDbType.VarChar, 500).Value = tweet.TweetMediaName;
                         cmd.Parameters.Add("@TweetMediaType", SqlDbType.VarChar, 500).Value = tweet.TweetMediaType;
                         cmd.Parameters.Add("@NumberOfReplies", SqlDbType.Int).Value = tweet.NumberOfReplies;

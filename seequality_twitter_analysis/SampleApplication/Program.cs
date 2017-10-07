@@ -25,8 +25,6 @@ namespace SampleApplication
             HelperMethods.CleanDatabase(sqlConnectionString, true);
 
             ParseTwitterData.ParseAllFilesFromDirectory(directory, sqlConnectionString);
-
-
             //var tweets_en = GetTwitterData.GetTweets(sqlConnectionString, "en");
             //TextMining.MineEntireTweetTextsAndSaveIntoDatabase(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
             //TextMining.MineTweetHashtagAndSaveIntoDatabase(sqlConnectionString, tweets_en, "#msignite");

@@ -22,6 +22,7 @@ namespace Libraries.Classes
         public DateTime DateTime { get; set; }
         public string TweetText { get; set; }
         public string TweetLanguage { get; set; }
+        public string TweetLanguageName { get; set; }
         public string TweetMediaName { get; set; }
         public string TweetMediaType { get; set; }
         public int NumberOfReplies { get; set; }
