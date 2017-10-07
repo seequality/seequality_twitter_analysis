@@ -83,9 +83,8 @@ namespace Libraries
 
             foreach (var tweet in tweets)
             {
-                var asf = "";
                 // remove all characters except # for hashtags
-                var words = tmRemoveSpecialCharactersFromText(tweet.Text).Split(' ');
+                var words = tmRemoveSpecialCharactersFromText(tweet.Text, '#').Split(' ');
 
                 foreach (var word in words)
                 {
@@ -157,7 +156,7 @@ namespace Libraries
             foreach (var tweet in tweets)
             {
                 // remove all characters except # for hashtags
-                var words = tmRemoveSpecialCharactersFromText(tweet.Text).Split(' ');
+                var words = tmRemoveSpecialCharactersFromText(tweet.Text, '@').Split(' ');
 
                 foreach (var word in words)
                 {
@@ -395,6 +394,19 @@ namespace Libraries
             foreach (var word in allWords)
             {
                 sb.Append(tmRemoveSpecialCharactersFromWord(word, '#') + " ");
+            }
+
+            return sb.ToString().Replace(" @ ", " ").Replace(" # ", " ").Replace("&nbsp;", " ").Replace("…", " ").Replace("   ", " ").Replace("  ", " ").Trim().ToLower();
+        }
+
+        public static string tmRemoveSpecialCharactersFromText(this string str, char exclude)
+        {
+            StringBuilder sb = new StringBuilder();
+            List<string> allWords = str.Split(' ').ToList();
+
+            foreach (var word in allWords)
+            {
+                sb.Append(tmRemoveSpecialCharactersFromWord(word, exclude) + " ");
             }
 
             return sb.ToString().Replace(" @ ", " ").Replace(" # ", " ").Replace("&nbsp;", " ").Replace("…", " ").Replace("   ", " ").Replace("  ", " ").Trim().ToLower();
