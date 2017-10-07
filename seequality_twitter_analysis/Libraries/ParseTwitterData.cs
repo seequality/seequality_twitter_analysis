@@ -334,7 +334,19 @@ namespace Libraries
                                 .SelectSingleNode(".//div[@class='js-tweet-text-container']")
                                 .InnerText
                                 .ToString()
+                                .Replace("\r\n", "")
+                                .Replace("&nbsp;", "")
+                                .Replace("http", " http")
+                                .Replace("pic.twitter", " pic.twitter")
+                                .Replace("@"," @")
+                                .Replace("#", " #")
+                                .Replace("…", " ")
+                                .Replace("   ", " ")
+                                .Replace("  ", " ")
                                 .Trim();
+
+                
+
                         }
                         catch (Exception exc)
                         {
