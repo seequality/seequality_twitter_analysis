@@ -28,7 +28,7 @@ namespace Libraries
             {
                 tmTweet textMiningResult = new tmTweet();
                 textMiningResult.TweetID = tweet.ID;
-                textMiningResult.OriginalTweetWithoutSpecialCharacters = tmRemoveSpecialCharactersFromText(tweet.Text);
+                textMiningResult.OriginalTweetWithoutSpecialCharacters = tmRemoveSpecialCharactersFromText(tweet.Text, true);
                 textMiningResult.OriginalTweetEnglishWordsOnly = tmRemoveNonEnglishWords(tweet.Text, englishWordsDictionary);
                 textMiningResult.OriginalTweetEnglishWordsOnlyWithoutStopWords = tmRemoveNonEnglishWordsAndStopWords(tweet.Text, englishWordsDictionary, englishStopWordsDictionary);
                 textMiningResults.Add(textMiningResult);
@@ -227,7 +227,7 @@ namespace Libraries
 
             foreach (var tweet in tweets)
             {
-                var words = tmRemoveSpecialCharactersFromText(tweet.Text).Split(' ');
+                var words = tmRemoveSpecialCharactersFromText(tweet.Text, true).Split(' ');
                 foreach (var word in words)
                 {
                     tmToken1Gram result = new tmToken1Gram();
@@ -386,14 +386,28 @@ namespace Libraries
             return sb.ToString();
         }
 
-        public static string tmRemoveSpecialCharactersFromText(this string str)
+        public static string tmRemoveSpecialCharactersFromText(this string str, bool removeUrls)
         {
             StringBuilder sb = new StringBuilder();
             List<string> allWords = str.Split(' ').ToList();
 
             foreach (var word in allWords)
             {
-                sb.Append(tmRemoveSpecialCharactersFromWord(word, '#') + " ");
+                if((word.Contains("http") || word.Contains("pic.twitter.com")))
+                {
+                    if(removeUrls == true)
+                    {
+                        // do nothing
+                    }
+                    else
+                    {
+                        sb.Append(word + " ");
+                    }
+                }
+                else
+                {
+                    sb.Append(tmRemoveSpecialCharactersFromWord(word) + " ");
+                }
             }
 
             return sb.ToString().Replace(" @ ", " ").Replace(" # ", " ").Replace("&nbsp;", " ").Replace("…", " ").Replace("   ", " ").Replace("  ", " ").Trim().ToLower();
@@ -406,7 +420,11 @@ namespace Libraries
 
             foreach (var word in allWords)
             {
-                sb.Append(tmRemoveSpecialCharactersFromWord(word, exclude) + " ");
+                // this method is only for use in parsing hashtags or accounts
+                if (!word.Contains("http") && !word.Contains("pic.twitter.com") && (word.Contains("@") || word.Contains("#")))
+                {
+                    sb.Append(tmRemoveSpecialCharactersFromWord(word, exclude) + " ");
+                }
             }
 
             return sb.ToString().Replace(" @ ", " ").Replace(" # ", " ").Replace("&nbsp;", " ").Replace("…", " ").Replace("   ", " ").Replace("  ", " ").Trim().ToLower();
@@ -414,7 +432,7 @@ namespace Libraries
 
         public static string tmRemoveNonEnglishWords(string str, string englishWordDictionary)
         {
-            string _str = tmRemoveSpecialCharactersFromText(str);
+            string _str = tmRemoveSpecialCharactersFromText(str, true);
             StringBuilder output = new StringBuilder();
 
             foreach (var word in _str.Split(' '))
@@ -430,7 +448,7 @@ namespace Libraries
 
         public static string tmRemoveEnglishStopWords(string str, string englishStopWordsDictionary)
         {
-            string _str = tmRemoveSpecialCharactersFromText(str);
+            string _str = tmRemoveSpecialCharactersFromText(str, true);
             StringBuilder output = new StringBuilder();
 
             foreach (var word in _str.Split(' '))
@@ -447,7 +465,7 @@ namespace Libraries
 
         public static string tmRemoveNonEnglishWordsAndStopWords(string str, string englishWordsDictionary, string englishStopWordsDictionary)
         {
-            string _str = tmRemoveSpecialCharactersFromText(str);
+            string _str = tmRemoveSpecialCharactersFromText(str, true);
             StringBuilder output = new StringBuilder();
 
             foreach (var word in _str.Split(' '))
@@ -486,7 +504,7 @@ namespace Libraries
 
             foreach (var tweet in tweets)
             {
-                var words = tmRemoveSpecialCharactersFromText(tweet.Text).Split(' ');
+                var words = tmRemoveSpecialCharactersFromText(tweet.Text, true).Split(' ');
                 List<tmToken2Gram> textMiningResults = new List<tmToken2Gram>();
 
                 for (int i = 0; i < words.Count() - 1; i++)
