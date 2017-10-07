@@ -21,16 +21,16 @@ namespace SampleApplication
             string stopWordsFilePath = @"C:\SLDR\seequality\seequality_twitter_analysis\seequality_twitter_analysis\EnglishStopWords.txt";
             string englishWordDictionaryPath = @"C:\SLDR\seequality\seequality_twitter_analysis\seequality_twitter_analysis\EnglishWords.txt";
 
-            //ParseTwitterData.ParseAllFilesFromDirectory(directory, sqlConnectionString);
+            ParseTwitterData.ParseAllFilesFromDirectory(directory, sqlConnectionString);
 
 
-            var tweets_en = GetTwitterData.GetTweets(sqlConnectionString, "en");
-            HelperMethods.CleanDatabase(sqlConnectionString, false);
-            TextMining.MineEntireTweetTextsAndSaveIntoDatabase(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
-            TextMining.MineTweetHashtagAndSaveIntoDatabase(sqlConnectionString, tweets_en, "#msignite");
-            TextMining.MineTweetAccountsAndSaveIntoDatabase(sqlConnectionString, tweets_en);
-            TextMining.MineTokenizeTweet1Gram(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
-            TextMining.MineTokenizeTweet2Gram(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
+            //var tweets_en = GetTwitterData.GetTweets(sqlConnectionString, "en");
+            //HelperMethods.CleanDatabase(sqlConnectionString, false);
+            //TextMining.MineEntireTweetTextsAndSaveIntoDatabase(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
+            //TextMining.MineTweetHashtagAndSaveIntoDatabase(sqlConnectionString, tweets_en, "#msignite");
+            //TextMining.MineTweetAccountsAndSaveIntoDatabase(sqlConnectionString, tweets_en);
+            //TextMining.MineTokenizeTweet1Gram(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
+            //TextMining.MineTokenizeTweet2Gram(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
 
 
 

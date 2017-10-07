@@ -51,6 +51,7 @@ namespace Libraries
                 {
                     cmd.ExecuteNonQuery();
                     ExecutionID = Convert.ToInt32(cmd.Parameters["@ExecutionID"].Value);
+                    conn.Close();
                     logger.Info("LogStart done");
                 }
                 catch (Exception exc)
