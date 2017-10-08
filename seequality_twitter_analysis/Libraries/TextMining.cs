@@ -18,7 +18,7 @@ namespace Libraries
 
         public static void MineEntireTweetTextsAndSaveIntoDatabase(string targetSQLConnectionString, List<TweetText> tweets, string englishWordsDictionaryPath, string englishStopWordsDictionaryPath)
         {
-            string TextMiningMethod = "MineEntireTweetTextsAndSaveIntoDatabase";
+            logger.Info("MineEntireTweetTextsAndSaveIntoDatabase start");
 
             List<tmTweet> textMiningResults = new List<tmTweet>();
             string englishWordsDictionary = File.ReadAllText(englishWordsDictionaryPath);
@@ -71,13 +71,13 @@ namespace Libraries
 
                 conn.Close();
 
-                logger.Info("Text mining method " + TextMiningMethod + " done");
+                logger.Info("MineEntireTweetTextsAndSaveIntoDatabase done");
             }
         }
 
         public static void MineTweetHashtagAndSaveIntoDatabase(string targetSQLConnectionString, List<TweetText> tweets, string IsOnTheWhiteList)
         {
-            string TextMiningMethod = "MineTweetHashtagAndSaveIntoDatabase";
+            logger.Info("MineTweetHashtagAndSaveIntoDatabase start");
 
             List<tmHashtag> textMiningResults = new List<tmHashtag>();
 
@@ -143,13 +143,13 @@ namespace Libraries
 
                 conn.Close();
 
-                logger.Info("Text mining method " + TextMiningMethod + " done");
+                logger.Info("MineTweetHashtagAndSaveIntoDatabase done");
             }
         }
 
         public static void MineTweetAccountsAndSaveIntoDatabase(string targetSQLConnectionString, List<TweetText> tweets)
         {
-            string TextMiningMethod = "MineTweetHashtagAndSaveIntoDatabase";
+            logger.Info("MineTweetAccountsAndSaveIntoDatabase start");
 
             List<tmAccount> textMiningResults = new List<tmAccount>();
 
@@ -211,13 +211,13 @@ namespace Libraries
 
                 conn.Close();
 
-                logger.Info("Text mining method " + TextMiningMethod + " done");
+                logger.Info("MineTweetAccountsAndSaveIntoDatabase done");
             }
         }
 
         public static void MineTokenizeTweet1Gram(string targetSQLConnectionString, List<TweetText> tweets, string englishWordDictionaryPath, string stopWordsFilePath)
         {
-            string TextMiningMethod = "MineTokenizeTweet1Gram";
+            logger.Info("MineTokenizeTweet1Gram start");
 
             List<tmToken1Gram> textMiningResults = new List<tmToken1Gram>();
             Iveonik.Stemmers.EnglishStemmer englishStemmer = new Iveonik.Stemmers.EnglishStemmer();
@@ -280,9 +280,6 @@ namespace Libraries
                     {
                         result.IsHashtag = false;
                     }
-
-                    //Uri uriResult;
-                    //result.IsWebsiteUrl = Uri.TryCreate(word, UriKind.Absolute, out uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
 
                     if (word.StartsWith("www") || word.StartsWith("http") || word.StartsWith("https"))
                     {
@@ -356,9 +353,74 @@ namespace Libraries
 
                 conn.Close();
 
-                logger.Info("Text mining method " + TextMiningMethod + " done");
+                logger.Info("MineTokenizeTweet1Gram done");
             }
         }
+
+        public static void MineTokenizeTweet2Gram(string targetSQLConnectionString, List<TweetText> tweets, string englishWordDictionaryPath, string stopWordsFilePath)
+        {
+            logger.Info("MineTokenizeTweet2Gram start");
+
+            string englishWordDictionary = File.ReadAllText(englishWordDictionaryPath);
+            string stopWordsFile = File.ReadAllText(stopWordsFilePath);
+
+            foreach (var tweet in tweets)
+            {
+                var words = tmRemoveSpecialCharactersFromText(tweet.Text, true).Split(' ');
+                List<tmToken2Gram> textMiningResults = new List<tmToken2Gram>();
+
+                for (int i = 0; i < words.Count() - 1; i++)
+                {
+                    tmToken2Gram result = new tmToken2Gram();
+                    result.TweetID = tweet.ID;
+                    result.Token = words[i] + " " + words[i + 1];
+                    textMiningResults.Add(result);
+                }
+
+                SqlConnection conn = new SqlConnection(targetSQLConnectionString);
+                SqlCommand cmd;
+
+                try
+                {
+                    conn.Open();
+                }
+                catch (Exception exc)
+                {
+                    logger.Error(exc);
+                }
+
+                if (conn.State == ConnectionState.Open)
+                {
+                    foreach (var result in textMiningResults)
+                    {
+
+                        cmd = new SqlCommand("[Internal].[sp_InsertToken2Gram]", conn);
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        cmd.Parameters.Add("@TweetID", SqlDbType.Int).Value = result.TweetID;
+                        cmd.Parameters.Add("@Token", SqlDbType.NVarChar, 500).Value = result.Token;
+
+                        try
+                        {
+                            cmd.ExecuteNonQuery();
+                        }
+                        catch (Exception exc)
+                        {
+                            logger.Error(exc);
+                        }
+                    }
+
+                    conn.Close();
+
+                }
+
+            }
+
+            logger.Info("MineTokenizeTweet2Gram done");
+
+        }
+
+        #region Text mining helper methods
 
         public static string tmRemoveSpecialCharactersFromWord(this string str)
         {
@@ -393,9 +455,9 @@ namespace Libraries
 
             foreach (var word in allWords)
             {
-                if((word.Contains("http") || word.Contains("pic.twitter.com")))
+                if ((word.Contains("http") || word.Contains("pic.twitter.com")))
                 {
-                    if(removeUrls == true)
+                    if (removeUrls == true)
                     {
                         // do nothing
                     }
@@ -495,67 +557,6 @@ namespace Libraries
 
         }
 
-        public static void MineTokenizeTweet2Gram(string targetSQLConnectionString, List<TweetText> tweets, string englishWordDictionaryPath, string stopWordsFilePath)
-        {
-            string TextMiningMethod = "MineTokenizeTweet2Gram";
-
-            string englishWordDictionary = File.ReadAllText(englishWordDictionaryPath);
-            string stopWordsFile = File.ReadAllText(stopWordsFilePath);
-
-            foreach (var tweet in tweets)
-            {
-                var words = tmRemoveSpecialCharactersFromText(tweet.Text, true).Split(' ');
-                List<tmToken2Gram> textMiningResults = new List<tmToken2Gram>();
-
-                for (int i = 0; i < words.Count() - 1; i++)
-                {
-                    tmToken2Gram result = new tmToken2Gram();
-                    result.TweetID = tweet.ID;
-                    result.Token = words[i] + " " + words[i + 1];
-                    textMiningResults.Add(result);
-                }
-
-                SqlConnection conn = new SqlConnection(targetSQLConnectionString);
-                SqlCommand cmd;
-
-                try
-                {
-                    conn.Open();
-                }
-                catch (Exception exc)
-                {
-                    logger.Error(exc);
-                }
-
-                if (conn.State == ConnectionState.Open)
-                {
-                    foreach (var result in textMiningResults)
-                    {
-
-                        cmd = new SqlCommand("[Internal].[sp_InsertToken2Gram]", conn);
-                        cmd.CommandType = CommandType.StoredProcedure;
-
-                        cmd.Parameters.Add("@TweetID", SqlDbType.Int).Value = result.TweetID;
-                        cmd.Parameters.Add("@Token", SqlDbType.NVarChar, 500).Value = result.Token;
-
-                        try
-                        {
-                            cmd.ExecuteNonQuery();
-                        }
-                        catch (Exception exc)
-                        {
-                            logger.Error(exc);
-                        }
-                    }
-
-                    conn.Close();
-
-                }
-
-            }
-
-            logger.Info("Text mining method " + TextMiningMethod + " done");
-
-        }
+        #endregion
     }
 }

@@ -22,6 +22,8 @@ namespace Libraries
 
         public static void CleanDatabase(string targetSQLConnectionString, bool cleanSource)
         {
+            logger.Info("CleanDatabase start");
+
             SqlConnection conn = new SqlConnection(targetSQLConnectionString);
             SqlCommand cmd;
 
@@ -51,6 +53,8 @@ namespace Libraries
                     logger.Error(exc);
                 }
             }
+
+            logger.Info("CleanDatabase done");
         }
 
         public static List<KeyValuePair<string, string>> GetCountryCodesAndNames()

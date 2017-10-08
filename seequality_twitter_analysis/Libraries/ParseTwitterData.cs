@@ -18,7 +18,7 @@ namespace Libraries
 
         public static void ParseAllFilesFromDirectory(string targetDirectory, string targetSQLConnectionString)
         {
-            logger.Info("ParseTwitterData started");
+            logger.Info("ParseAllFilesFromDirectory start");
 
             string sqlConnectionString = targetSQLConnectionString;
             List<string> allFilesPaths = new List<string>();
@@ -69,6 +69,8 @@ namespace Libraries
 
                 #region Read files
 
+                logger.Info("* Read all files start");
+
                 // get all files from the given directory
                 allFilesPaths = Directory.GetFiles(targetDirectory).ToList();
 
@@ -77,6 +79,8 @@ namespace Libraries
                 {
                     try
                     {
+                        logger.Info("** Reading file " + Path.GetFileName(filePath) + " start");
+
                         string _htmlDocuments = @"<!DOCTYPE html><html><head><title>Page</title></head>" + File.ReadAllText(filePath, Encoding.UTF8) + "</html>";
                         HtmlDocument htmlDocument = new HtmlDocument();
                         htmlDocument.LoadHtml(_htmlDocuments);
@@ -87,7 +91,7 @@ namespace Libraries
                         fileContent.HTMLDocument = htmlDocument.DocumentNode;
                         filesContent.Add(fileContent);
 
-                        logger.Info("Reading file " + filePath + " done");
+                        logger.Info("** Reading file " + Path.GetFileName(filePath) + " done");
                     }
                     catch (Exception exc)
                     {
@@ -95,9 +99,13 @@ namespace Libraries
                     }
                 }
 
+                logger.Info("* Read all files done");
+
                 #endregion
 
                 #region Save file info and content into database
+
+                logger.Info("* Save file info and content into database start");
 
                 try
                 {
@@ -123,7 +131,6 @@ namespace Libraries
                         try
                         {
                             cmd.ExecuteNonQuery();
-                            logger.Info("FileContent inserted into the database succesfully");
                         }
                         catch (Exception exc)
                         {
@@ -134,6 +141,8 @@ namespace Libraries
                     conn.Close();
                 }
 
+                logger.Info("* Save file info and content into database done");
+
                 #endregion
 
                 #endregion
@@ -142,8 +151,12 @@ namespace Libraries
 
                 #region Parse documents 
 
+                logger.Info("* Parse documents start");
+
                 foreach (var fileContent in filesContent)
                 {
+                    logger.Info("** Parse document" + Path.GetFileName(fileContent.FilePath) + " start");
+
                     int iNumberOfTweets = 0;
                     int iTotalNumberOfErrorsDuringParsing = 0;
 
@@ -713,12 +726,16 @@ namespace Libraries
                         iTotalNumberOfErrorsDuringParsing = iTotalNumberOfErrorsDuringParsing + iNumberOfErrorsDuringParsing;
                     }
 
-                    logger.Info("Parsed " + fileContent.FilePath + ", number of tweets: " + iNumberOfTweets + ", number of errors during parsing: " + iTotalNumberOfErrorsDuringParsing);
+                    logger.Info("** Parse document" + Path.GetFileName(fileContent.FilePath) + " done {" + "number of tweets: " + iNumberOfTweets + ", number of errors during parsing: " + iTotalNumberOfErrorsDuringParsing + "}");
                 }
+
+                logger.Info("* Parse documents end");
 
                 #endregion
 
                 #region Save tweets into database
+
+                logger.Info("* Save tweets to database start");
 
                 conn = new SqlConnection(sqlConnectionString);
 
@@ -774,8 +791,9 @@ namespace Libraries
 
                     conn.Close();
 
-                    logger.Info("Tweets inserted into the database succesfully");
                 }
+
+                logger.Info("* Save tweets to database start");
 
                 #endregion
 
@@ -818,7 +836,7 @@ namespace Libraries
                 logger.Error("Error while setting up the database log");
             }
 
-            logger.Info("ParseTwitterData ended");
+            logger.Info("ParseAllFilesFromDirectory done");
 
         }
     }
