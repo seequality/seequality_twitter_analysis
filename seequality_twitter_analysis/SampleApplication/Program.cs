@@ -34,7 +34,8 @@ namespace SampleApplication
 
             watch.Stop();
             var elapsedMs = watch.ElapsedMilliseconds;
-            Console.WriteLine("Elapsed miliseconds: " + elapsedMs.ToString());
+            var elapsedSedonds = elapsedMs / 1000;
+            Console.WriteLine("Elapsed miliseconds: " + elapsedMs.ToString() + " (" + elapsedSedonds.ToString() + " seconds)");
 
             Console.WriteLine("done");
             Console.ReadKey();
