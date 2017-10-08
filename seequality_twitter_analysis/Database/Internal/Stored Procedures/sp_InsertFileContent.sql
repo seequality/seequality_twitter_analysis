@@ -3,7 +3,9 @@
 
 
 
-CREATE PROCEDURE [dbo].[sp_InsertFileContent] 
+
+
+CREATE PROCEDURE [Internal].[sp_InsertFileContent] 
 (
 	@ExecutionID INT,
 	@FilePath VARCHAR(1000) = NULL,
@@ -11,7 +13,7 @@ CREATE PROCEDURE [dbo].[sp_InsertFileContent]
 	@HTMLDocument [NVARCHAR](MAX) = NULL
 )
 AS 
-INSERT INTO [dbo].[FileContent]
+INSERT INTO [Internal].[FileContent]
 (
 	[ExecutionID]
 	,[FilePath]

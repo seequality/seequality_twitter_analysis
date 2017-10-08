@@ -1,5 +1,6 @@
 ﻿
-CREATE PROCEDURE [dbo].[sp_InsertTMAccounts]
+
+CREATE PROCEDURE [Internal].[sp_InsertTMAccounts]
 (
 	@TweetID INT,
 	@Account NVARCHAR(500)

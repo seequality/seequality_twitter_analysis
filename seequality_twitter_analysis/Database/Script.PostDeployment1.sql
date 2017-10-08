@@ -9,9 +9,3 @@ Post-Deployment Script Template
                SELECT * FROM [$(TableName)]					
 --------------------------------------------------------------------------------------
 */
--- Fill table [TextMiningMethod]
-INSERT INTO [TextMiningMethod] ([TextMiningMethodName]) VALUES ('Original tweet without special characters')
-INSERT INTO [TextMiningMethod] ([TextMiningMethodName]) VALUES ('Hashtag')
-INSERT INTO [TextMiningMethod] ([TextMiningMethodName]) VALUES ('Twitter accounts')
-INSERT INTO [TextMiningMethod] ([TextMiningMethodName]) VALUES ('N-gram 1 remove special characters : True')
-INSERT INTO [TextMiningMethod] ([TextMiningMethodName]) VALUES ('N-gram 1 remove special characters : False')

@@ -51,7 +51,7 @@ namespace Libraries
                 foreach (var result in textMiningResults)
                 {
 
-                    cmd = new SqlCommand("[sp_InsertTMTweet]", conn);
+                    cmd = new SqlCommand("[Internal].[sp_InsertTMTweet]", conn);
                     cmd.CommandType = CommandType.StoredProcedure;
 
                     cmd.Parameters.Add("@TweetID", SqlDbType.Int).Value = result.TweetID;
@@ -124,7 +124,7 @@ namespace Libraries
                 foreach (var result in textMiningResults)
                 {
 
-                    cmd = new SqlCommand("[sp_InsertTMHashtag]", conn);
+                    cmd = new SqlCommand("[Internal].[sp_InsertTMHashtag]", conn);
                     cmd.CommandType = CommandType.StoredProcedure;
 
                     cmd.Parameters.Add("@TweetID", SqlDbType.Int).Value = result.TweetID;
@@ -193,7 +193,7 @@ namespace Libraries
                 foreach (var result in textMiningResults)
                 {
 
-                    cmd = new SqlCommand("[sp_InsertTMAccounts]", conn);
+                    cmd = new SqlCommand("[Internal].[sp_InsertTMAccounts]", conn);
                     cmd.CommandType = CommandType.StoredProcedure;
 
                     cmd.Parameters.Add("@TweetID", SqlDbType.Int).Value = result.TweetID;
@@ -330,7 +330,7 @@ namespace Libraries
                 foreach (var result in textMiningResults)
                 {
 
-                    cmd = new SqlCommand("[sp_InsertToken1Gram]", conn);
+                    cmd = new SqlCommand("[Internal].[sp_InsertToken1Gram]", conn);
                     cmd.CommandType = CommandType.StoredProcedure;
 
                     cmd.Parameters.Add("@TweetID", SqlDbType.Int).Value = result.TweetID;
@@ -532,7 +532,7 @@ namespace Libraries
                     foreach (var result in textMiningResults)
                     {
 
-                        cmd = new SqlCommand("[sp_InsertToken2Gram]", conn);
+                        cmd = new SqlCommand("[Internal].[sp_InsertToken2Gram]", conn);
                         cmd.CommandType = CommandType.StoredProcedure;
 
                         cmd.Parameters.Add("@TweetID", SqlDbType.Int).Value = result.TweetID;

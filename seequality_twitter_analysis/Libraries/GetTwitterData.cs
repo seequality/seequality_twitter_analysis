@@ -16,7 +16,7 @@ namespace Libraries
             List<TweetText> tweets = new List<TweetText>();
 
             SqlConnection connection = new SqlConnection(targetSQLConnectionString);
-            SqlCommand command = new SqlCommand("sp_GetTweets", connection);
+            SqlCommand command = new SqlCommand("[Internal].[sp_GetTweets]", connection);
             command.CommandType = System.Data.CommandType.StoredProcedure;
             connection.Open();
             SqlDataReader reader = command.ExecuteReader();
@@ -37,7 +37,7 @@ namespace Libraries
             List<TweetText> tweets = new List<TweetText>();
 
             SqlConnection connection = new SqlConnection(targetSQLConnectionString);
-            SqlCommand command = new SqlCommand("sp_GetTweetsByLanguage", connection);
+            SqlCommand command = new SqlCommand("Internal.sp_GetTweetsByLanguage", connection);
             command.CommandType = System.Data.CommandType.StoredProcedure;
             command.Parameters.Add("@Language", SqlDbType.VarChar,500).Value = language;
 

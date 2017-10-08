@@ -37,7 +37,7 @@ namespace Libraries
             if (conn.State == ConnectionState.Open)
             {
 
-                cmd = new SqlCommand("sp_CleanTables", conn);
+                cmd = new SqlCommand("[Internal].[sp_CleanTables]", conn);
                 cmd.CommandType = CommandType.StoredProcedure;
 
                 cmd.Parameters.Add("@CleanSource", SqlDbType.Bit).Value = cleanSource;

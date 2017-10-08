@@ -1,4 +1,5 @@
-﻿CREATE PROCEDURE dbo.sp_InsertTMTweet
+﻿
+CREATE PROCEDURE [Internal].[sp_InsertTMTweet]
 (
 	@TweetID INT, 
 	@OriginalTweetWithoutSpecialCharacters NVARCHAR(500),

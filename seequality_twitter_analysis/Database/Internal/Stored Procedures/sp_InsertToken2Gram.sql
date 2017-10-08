@@ -1,6 +1,7 @@
 ﻿
 
-CREATE PROCEDURE [dbo].[sp_InsertToken2Gram]
+
+CREATE PROCEDURE [Internal].[sp_InsertToken2Gram]
 (
 	@TweetID INT,
 	@Token NVARCHAR(500) = NULL

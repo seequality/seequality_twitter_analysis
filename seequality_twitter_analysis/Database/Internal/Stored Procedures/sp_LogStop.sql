@@ -1,12 +1,14 @@
 ﻿
 
-CREATE PROCEDURE [dbo].[sp_LogStop]
+
+
+CREATE PROCEDURE [Internal].[sp_LogStop]
 (
 	@ExecutionID INT
 )
 AS
 BEGIN 
-	UPDATE [dbo].[Executions]
+	UPDATE [Internal].[Executions]
 	SET EndTime = GETDATE()
 	WHERE ExecutionID = @ExecutionID
 END

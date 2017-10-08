@@ -1,5 +1,7 @@
 ﻿
-CREATE PROCEDURE [dbo].[sp_InsertTweet] 
+
+
+CREATE PROCEDURE [Internal].[sp_InsertTweet] 
 (
 	@ExecutionID INT,
 	@UserAddressName [VARCHAR](500) = NULL,
@@ -25,7 +27,7 @@ CREATE PROCEDURE [dbo].[sp_InsertTweet]
 	@NumberOfErrorsDuringParsing [INT] = NULL
 )
 AS
-INSERT INTO [dbo].[Tweet]
+INSERT INTO [Internal].[Tweet]
 (
 	[ExecutionID]
 	,[UserAddressName]

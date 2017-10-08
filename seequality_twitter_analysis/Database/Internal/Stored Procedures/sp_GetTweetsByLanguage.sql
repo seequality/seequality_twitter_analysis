@@ -1,5 +1,7 @@
 ﻿
-CREATE PROCEDURE [dbo].[sp_GetTweetsByLanguage]
+
+
+CREATE PROCEDURE [Internal].[sp_GetTweetsByLanguage]
 (
 	@Language VARCHAR(500) = NULL
 )
@@ -8,7 +10,7 @@ BEGIN
 
 	SELECT DISTINCT TweetID ,
 			TweetText
-	FROM   dbo.Tweet
+	FROM   Internal.Tweet
 	WHERE TweetLanguage = @Language
 
 END

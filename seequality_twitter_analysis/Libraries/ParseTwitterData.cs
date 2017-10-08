@@ -43,7 +43,7 @@ namespace Libraries
             if (conn.State == ConnectionState.Open)
             {
 
-                cmd = new SqlCommand("[sp_LogStart]", conn);
+                cmd = new SqlCommand("[Internal].[sp_LogStart]", conn);
                 cmd.CommandType = CommandType.StoredProcedure;
 
                 cmd.Parameters.Add("@ExecutionID", SqlDbType.Int).Direction = ParameterDirection.Output;
@@ -112,7 +112,7 @@ namespace Libraries
                 {
                     foreach (var fileContent in filesContent)
                     {
-                        cmd = new SqlCommand("[sp_InsertFileContent]", conn);
+                        cmd = new SqlCommand("[Internal].[sp_InsertFileContent]", conn);
                         cmd.CommandType = CommandType.StoredProcedure;
 
                         cmd.Parameters.Add("@ExecutionID", SqlDbType.Int).Value = ExecutionID;
@@ -736,7 +736,7 @@ namespace Libraries
                     foreach (var tweet in allTweets)
                     {
 
-                        cmd = new SqlCommand("[sp_InsertTweet]", conn);
+                        cmd = new SqlCommand("[Internal].[sp_InsertTweet]", conn);
                         cmd.CommandType = CommandType.StoredProcedure;
 
                         cmd.Parameters.Add("@ExecutionID", SqlDbType.Int).Value = ExecutionID;
@@ -795,7 +795,7 @@ namespace Libraries
                 if (conn.State == ConnectionState.Open)
                 {
 
-                    cmd = new SqlCommand("[sp_LogStop]", conn);
+                    cmd = new SqlCommand("[Internal].[sp_LogStop]", conn);
                     cmd.CommandType = CommandType.StoredProcedure;
 
                     cmd.Parameters.Add("@ExecutionID", SqlDbType.Int).Value = ExecutionID;

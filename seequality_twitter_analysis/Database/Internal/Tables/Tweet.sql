@@ -1,4 +1,4 @@
-﻿CREATE TABLE [dbo].[Tweet] (
+﻿CREATE TABLE [Internal].[Tweet] (
     [TweetID]                     INT            IDENTITY (1, 1) NOT NULL,
     [ExecutionID]                 INT            NOT NULL,
     [UserAddressName]             VARCHAR (500)  NULL,
@@ -24,20 +24,4 @@
     [NumberOfErrorsDuringParsing] INT            NULL,
     CONSTRAINT [PK_dbo_Tweet] PRIMARY KEY CLUSTERED ([TweetID] ASC)
 );
-
-
-
-
-
-
-
-
-
-
-
-
-GO
-CREATE NONCLUSTERED INDEX [NCI_dbo_Tweet_TweetLanguage_INCL_TweetID_TweetText]
-    ON [dbo].[Tweet]([TweetLanguage] ASC)
-    INCLUDE([TweetID], [TweetText]);
 

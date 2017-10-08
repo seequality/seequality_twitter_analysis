@@ -1,4 +1,5 @@
-﻿CREATE PROCEDURE dbo.[sp_InsertTMHashtag]
+﻿
+CREATE PROCEDURE [Internal].[sp_InsertTMHashtag]
 (
 	@TweetID INT,
 	@Hashtag NVARCHAR(500),

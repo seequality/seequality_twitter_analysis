@@ -4,7 +4,9 @@
 
 
 
-CREATE PROCEDURE [dbo].[sp_CleanTables]
+
+
+CREATE PROCEDURE [Internal].[sp_CleanTables]
 (
 	@CleanSource BIT
 )
@@ -14,9 +16,9 @@ BEGIN
 IF @CleanSource = 1 
 	BEGIN 
 
-		TRUNCATE TABLE [dbo].[Executions]
-		TRUNCATE TABLE [dbo].[FileContent]
-		TRUNCATE TABLE [dbo].[Tweet]
+		TRUNCATE TABLE [Internal].[Executions]
+		TRUNCATE TABLE [Internal].[FileContent]
+		TRUNCATE TABLE [Internal].[Tweet]
 	END
 
 	TRUNCATE TABLE [TextMining].[Hashtags]
