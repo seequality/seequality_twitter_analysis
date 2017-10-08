@@ -63,6 +63,8 @@
     <Folder Include="Internal\" />
     <Folder Include="Internal\Tables\" />
     <Folder Include="Internal\Stored Procedures\" />
+    <Folder Include="Reporting\" />
+    <Folder Include="Reporting\Views\" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="TextMining\Tables\Tweet.sql" />
@@ -88,6 +90,11 @@
     <Build Include="Internal\Stored Procedures\sp_CleanTables.sql" />
     <Build Include="Security\Reporting.sql" />
     <Build Include="Security\Internal.sql" />
+    <Build Include="Reporting\Views\Tweets.sql" />
+    <Build Include="Reporting\Views\Token2Gram.sql" />
+    <Build Include="Reporting\Views\Token1Gram.sql" />
+    <Build Include="Reporting\Views\Hashtags.sql" />
+    <Build Include="Reporting\Views\Accounts.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment1.sql" />
