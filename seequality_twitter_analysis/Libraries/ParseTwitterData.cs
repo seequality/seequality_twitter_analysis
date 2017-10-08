@@ -75,7 +75,7 @@ namespace Libraries
                 allFilesPaths = Directory.GetFiles(targetDirectory).ToList();
 
                 // read all files and convert to the HTML document
-                foreach (var filePath in allFilesPaths.Where(x => x.Contains("alltheothers_since20170926until20170927")))
+                foreach (var filePath in allFilesPaths)
                 {
                     try
                     {
@@ -212,7 +212,7 @@ namespace Libraries
                         }
 
                         try
-                        {   
+                        {
                             currentTweet.UserFullName = tweet
                                 .SelectSingleNode(".//div[@class='stream-item-header']//strong[@class='fullname show-popup-with-id ' or @class='fullname show-popup-with-id fullname-rtl']")
                                 .InnerText
@@ -351,7 +351,7 @@ namespace Libraries
                                 .Replace("&nbsp;", "")
                                 .Replace("http", " http")
                                 .Replace("pic.twitter", " pic.twitter")
-                                .Replace("@"," @")
+                                .Replace("@", " @")
                                 .Replace("#", " #")
                                 .Replace("…", " ")
                                 .Replace("   ", " ")
@@ -371,7 +371,7 @@ namespace Libraries
                             .GetAttributeValue("lang", String.Empty)
                             .ToString()
                             .Trim();
-                            
+
                         }
                         catch (Exception exc)
                         {
@@ -381,7 +381,14 @@ namespace Libraries
 
                         try
                         {
-                            currentTweet.TweetLanguageName = allLanguages.Where(x => x.Key == currentTweet.TweetLanguage).Select(x => x.Value).First().ToString();
+                            if (allLanguages.Where(x => x.Key == currentTweet.TweetLanguage).Select(x => x.Value).Count() > 0)
+                            {
+                                currentTweet.TweetLanguageName = allLanguages.Where(x => x.Key == currentTweet.TweetLanguage).Select(x => x.Value).First().ToString();
+                            }
+                            else
+                            {
+                                currentTweet.TweetLanguageName = "N/A";
+                            }
                         }
                         catch (Exception exc)
                         {
@@ -416,7 +423,7 @@ namespace Libraries
                                 try
                                 {
                                     if (tweet.SelectSingleNode(".//div[@class='AdaptiveMedia-singlePhoto']").InnerHtml.Length > 0)
-                                    { 
+                                    {
                                         tweetMediaName = "AdaptiveMedia-singlePhoto";
                                         tweetMediaType = "photo";
                                     }
