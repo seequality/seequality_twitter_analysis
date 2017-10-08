@@ -15,7 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Files", "Files", "{062D950F
 		EnglishWords.txt = EnglishWords.txt
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PowerBI", "PowerBI", "{677A6853-95DC-45B1-849E-4186696D274D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FE493CFA-2D3E-42BA-B989-AB91ED8E6771}"
 	ProjectSection(SolutionItems) = preProject
 		Report.pbix = Report.pbix
 	EndProjectSection
