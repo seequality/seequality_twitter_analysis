@@ -1,5 +1,5 @@
 ﻿
-CREATE VIEW [Reporting].[Hashtags] 
+CREATE VIEW [Reporting].[Hashtag] 
 AS 
 SELECT 
       [TweetID]

@@ -1,5 +1,5 @@
 ﻿
-CREATE VIEW [Reporting].[Accounts] 
+CREATE VIEW [Reporting].[Account] 
 AS 
 SELECT 
        TweetID ,

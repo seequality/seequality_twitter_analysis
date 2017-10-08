@@ -1,5 +1,8 @@
 ﻿
 
+
+
+
 CREATE VIEW [Reporting].[Calendar]
 AS
 WITH cte AS
@@ -10,16 +13,17 @@ TOP
 		SELECT 
 		DATEDIFF(
 			d, 
-			(SELECT DATEADD(yy, DATEDIFF(yy, 0, MIN(DateTime)), 0) AS StartOfYear FROM Internal.Tweet), 
-			(SELECT DATEADD(yy, DATEDIFF(yy, 0, MIN(DateTime))+ 1, -1) AS StartOfYear FROM Internal.Tweet)
+			(SELECT DATEADD(yy, DATEDIFF(yy, 0, MIN(CONVERT(DATE,DateID))), 0) AS StartOfYear FROM Reporting.Tweet), 
+			(SELECT DATEADD(yy, DATEDIFF(yy, 0, MIN(CONVERT(DATE,DateID)))+ 1, -1) AS StartOfYear FROM Reporting.Tweet)
 		) + 1
 	)
-	DATEADD(DAY, ROW_NUMBER() OVER(ORDER BY a.name ASC) - 1, (SELECT DATEADD(yy, DATEDIFF(yy, 0, MIN(DateTime)), 0) AS StartOfYear FROM Internal.Tweet)) AS FullTime
+	DATEADD(DAY, ROW_NUMBER() OVER(ORDER BY a.name ASC) - 1, (SELECT DATEADD(yy, DATEDIFF(yy, 0, MIN(CONVERT(DATE,DateID))), 0) AS StartOfYear FROM Reporting.Tweet)) AS FullTime
 FROM sys.system_objects a
 CROSS JOIN sys.system_objects b
 )
 SELECT 
 	CONVERT(VARCHAR(8), FullTime, 112) AS DateID,
+	CONVERT(DATE, cte.FullTime) AS [Date],
 	FORMAT(cte.FullTime,'yyyy') AS [Year],
 	FORMAT(cte.FullTime,'MM') AS [Month],
 	FORMAT(cte.FullTime,'dd') AS [Day],
