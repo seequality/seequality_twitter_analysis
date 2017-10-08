@@ -1,4 +1,5 @@
 ﻿
+
 CREATE VIEW [Reporting].[Token1Gram]
 AS
 SELECT 
@@ -11,5 +12,4 @@ SELECT
       ,[IsHashtag]
       ,[IsAccountName]
       ,[IsNumber]
-      ,[IsWebsiteUrl]
   FROM [TextMining].[Token1Gram]
