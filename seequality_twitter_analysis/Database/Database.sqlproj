@@ -65,6 +65,7 @@
     <Folder Include="Internal\Stored Procedures\" />
     <Folder Include="Reporting\" />
     <Folder Include="Reporting\Views\" />
+    <Folder Include="Internal\Views\" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="TextMining\Tables\Tweet.sql" />
@@ -97,6 +98,7 @@
     <Build Include="Reporting\Views\Tweet.sql" />
     <Build Include="Reporting\Views\Hashtag.sql" />
     <Build Include="Reporting\Views\Account.sql" />
+    <Build Include="Internal\Views\DistinctTweet.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment1.sql" />

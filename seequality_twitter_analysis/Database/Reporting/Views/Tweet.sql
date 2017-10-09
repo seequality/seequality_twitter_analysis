@@ -1,5 +1,7 @@
 ﻿
 
+
+
 CREATE VIEW [Reporting].[Tweet] 
 AS 
 SELECT 
@@ -46,6 +48,7 @@ SELECT
 	END AS TimeID, 
     it.UserTwitterName ,
     it.ConversationID ,
+	it.StatusPath,
     it.TweetText ,
     it.TweetLanguageName ,
     it.TweetMediaName ,
@@ -57,6 +60,10 @@ SELECT
     it.NumberOfRetweets ,
     it.NumberOFFavourites ,
 	LEN(IIF(tt.OriginalTweetWithoutSpecialCharacters IS NULL, it.TweetText, tt.OriginalTweetWithoutSpecialCharacters)) AS TwitterLengthText
-FROM Internal.Tweet it
-LEFT JOIN TextMining.Tweet tt
+FROM Internal.Tweet it (NOLOCK)
+LEFT JOIN TextMining.Tweet tt (NOLOCK)
 ON it.TweetID = tt.TweetID
+WHERE it.TweetID IN 
+(
+	SELECT TweetID FROM Internal.DistinctTweet
+)
