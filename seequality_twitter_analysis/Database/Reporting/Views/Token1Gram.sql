@@ -1,6 +1,7 @@
 ﻿
 
 
+
 CREATE VIEW [Reporting].[Token1Gram]
 AS
 SELECT 
@@ -13,4 +14,8 @@ SELECT
       ,[IsHashtag]
       ,[IsAccountName]
       ,[IsNumber]
-  FROM [TextMining].[Token1Gram]
+  FROM [TextMining].[Token1Gram] (NOLOCK)
+  WHERE TweetID IN 
+(
+	SELECT TweetID FROM Internal.DistinctTweet
+)
