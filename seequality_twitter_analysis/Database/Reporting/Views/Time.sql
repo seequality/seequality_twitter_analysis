@@ -1,4 +1,25 @@
-﻿
+﻿/*    ==Scripting Parameters==
+
+    Source Server Version : SQL Server 2016 (13.0.4206)
+    Source Database Engine Edition : Microsoft SQL Server Enterprise Edition
+    Source Database Engine Type : Standalone SQL Server
+
+--    Target Server Version : SQL Server 2016
+--    Target Database Engine Edition : Microsoft SQL Server Enterprise Edition
+--    Target Database Engine Type : Standalone SQL Server
+--*/
+
+--USE [TwitterAnalysis]
+--GO
+
+--/****** Object:  View [Reporting].[Time]    Script Date: 2017-10-08 5:59:28 PM ******/
+--SET ANSI_NULLS ON
+--GO
+
+--SET QUOTED_IDENTIFIER ON
+--GO
+
+
 CREATE VIEW [Reporting].[Time] 
 AS
 WITH cte AS 
@@ -22,7 +43,7 @@ WITH cte AS
 	FROM cte
 )
 SELECT 
-	CONVERT(INT,[TimeID]) AS [TimeID],
+	CONVERT(VARCHAR(4),[TimeID]) AS [TimeID],
     CONVERT(VARCHAR(5),[TimeName]) AS [TimeName],
     CONVERT(VARCHAR(2),[Hour]) AS [Hour],
     CONVERT(VARCHAR(2),[Minute]) AS [Minute],
