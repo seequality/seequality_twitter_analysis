@@ -66,6 +66,8 @@
     <Folder Include="Reporting\" />
     <Folder Include="Reporting\Views\" />
     <Folder Include="Internal\Views\" />
+    <Folder Include="Analytics\" />
+    <Folder Include="Analytics\Views\" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="TextMining\Tables\Tweet.sql" />
@@ -99,6 +101,15 @@
     <Build Include="Reporting\Views\Hashtag.sql" />
     <Build Include="Reporting\Views\Account.sql" />
     <Build Include="Internal\Views\DistinctTweet.sql" />
+    <Build Include="Analytics\Views\ExtractWWW.sql" />
+    <Build Include="Analytics\Views\MostActiveUsersTwitterName.sql" />
+    <Build Include="Analytics\Views\MostActiveUsersTwitterAddress.sql" />
+    <Build Include="Analytics\Views\MostUsedToken2.sql" />
+    <Build Include="Analytics\Views\MostUsedToken1.sql" />
+    <Build Include="Analytics\Views\MostReferencedAccounts.sql" />
+    <Build Include="Analytics\Views\MostUsedHashtags.sql" />
+    <Build Include="Analytics\Views\MostActiveUsers.sql" />
+    <Build Include="Security\Analytics.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment1.sql" />
