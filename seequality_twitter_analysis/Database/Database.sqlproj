@@ -110,6 +110,9 @@
     <Build Include="Analytics\Views\MostUsedHashtags.sql" />
     <Build Include="Analytics\Views\MostActiveUsers.sql" />
     <Build Include="Security\Analytics.sql" />
+    <Build Include="TextMining\Tables\Token3Gram.sql" />
+    <Build Include="Reporting\Views\Token3Gram.sql" />
+    <Build Include="Internal\Stored Procedures\sp_InsertTokenGram.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment1.sql" />
