@@ -19,18 +19,20 @@ namespace SampleApplication
             string stopWordsFilePath = @"C:\SLDR\seequality\seequality_twitter_analysis\seequality_twitter_analysis\EnglishStopWords.txt";
             string englishWordDictionaryPath = @"C:\SLDR\seequality\seequality_twitter_analysis\seequality_twitter_analysis\EnglishWords.txt";
 
-            HelperMethods.CleanDatabase(sqlConnectionString, false);
+            //HelperMethods.CleanDatabase(sqlConnectionString, false);
 
             //ParseTwitterData.ParseAllFilesFromDirectory(directory, sqlConnectionString);
 
             var tweets_en = GetTwitterData.GetTweets(sqlConnectionString, "en");
             var tweets = GetTwitterData.GetTweets(sqlConnectionString);
 
-            TextMining.MineEntireTweetTextsAndSaveIntoDatabase(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
-            TextMining.MineTweetHashtagAndSaveIntoDatabase(sqlConnectionString, tweets, "#msignite");
-            TextMining.MineTweetAccountsAndSaveIntoDatabase(sqlConnectionString, tweets);
-            TextMining.MineTokenizeTweet1Gram(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
-            TextMining.MineTokenizeTweet2Gram(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
+            //TextMining.MineEntireTweetTextsAndSaveIntoDatabase(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
+            //TextMining.MineTweetHashtagAndSaveIntoDatabase(sqlConnectionString, tweets, "#msignite");
+            //TextMining.MineTweetAccountsAndSaveIntoDatabase(sqlConnectionString, tweets);
+            //TextMining.MineTokenizeTweet1Gram(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
+            //TextMining.MineTokenizeTweet2Gram(sqlConnectionString, tweets_en, englishWordDictionaryPath, stopWordsFilePath);
+
+            TextMining.MineTokenizeTweet3Gram(sqlConnectionString, tweets_en);
 
             watch.Stop();
             var elapsedMs = watch.ElapsedMilliseconds;

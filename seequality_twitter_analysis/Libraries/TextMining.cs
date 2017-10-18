@@ -420,6 +420,70 @@ namespace Libraries
 
         }
 
+        public static void MineTokenizeTweet3Gram(string targetSQLConnectionString, List<TweetText> tweets)
+        {
+            logger.Info("MineTokenizeTweet2Gram start");
+
+            foreach (var tweet in tweets)
+            {
+                var words = tmRemoveSpecialCharactersFromText(tweet.Text, true).Split(' ');
+                List<tmToken2Gram> textMiningResults = new List<tmToken2Gram>();
+
+                for (int i = 0; i < words.Count() - 1; i++)
+                {
+                    if (i <= words.Count() - 3)
+                    {
+                        tmToken2Gram result = new tmToken2Gram();
+                        result.TweetID = tweet.ID;
+                        result.Token = words[i] + " " + words[i + 1] + " " + words[i + 2];
+                        textMiningResults.Add(result);
+                    }
+                }
+
+                SqlConnection conn = new SqlConnection(targetSQLConnectionString);
+                SqlCommand cmd;
+
+                try
+                {
+                    conn.Open();
+                }
+                catch (Exception exc)
+                {
+                    logger.Error(exc);
+                }
+
+                if (conn.State == ConnectionState.Open)
+                {
+                    foreach (var result in textMiningResults)
+                    {
+
+                        cmd = new SqlCommand("[Internal].[sp_InsertToken3Gram]", conn);
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        cmd.Parameters.Add("@TweetID", SqlDbType.Int).Value = result.TweetID;
+                        cmd.Parameters.Add("@Token", SqlDbType.NVarChar, 500).Value = result.Token;
+
+                        try
+                        {
+                            cmd.ExecuteNonQuery();
+                        }
+                        catch (Exception exc)
+                        {
+                            logger.Error(exc);
+                        }
+                    }
+
+                    conn.Close();
+
+                }
+
+            }
+
+            logger.Info("MineTokenizeTweet2Gram done");
+
+        }
+
+
         #region Text mining helper methods
 
         public static string tmRemoveSpecialCharactersFromWord(this string str)
