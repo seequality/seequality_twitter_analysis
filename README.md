@@ -1,2 +1,3 @@
 # seequality_twitter_analysis
-Will be updated soon
+Simple library and console application that can be used to parse the Twitter page in C#.
+The repository contains the sample report in Power BI than can be used to analyze these data.
