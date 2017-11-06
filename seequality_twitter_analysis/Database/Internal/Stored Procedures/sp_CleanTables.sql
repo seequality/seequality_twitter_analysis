@@ -1,4 +1,5 @@
 ﻿
+
 CREATE PROCEDURE [Internal].[sp_CleanTables]
 (
 	@CleanSource BIT
@@ -20,5 +21,6 @@ IF @CleanSource = 1
 	TRUNCATE TABLE [TextMining].[Token1Gram]
 	TRUNCATE TABLE [TextMining].[Token2Gram]
 	TRUNCATE TABLE [TextMining].[Token3Gram]
+	TRUNCATE TABLE [TextMining].[Token4Gram]
 
 END
